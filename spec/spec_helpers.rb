@@ -31,15 +31,14 @@ module Helpers
 #    r
 #  end
 
-  @compiled =
-    ExecJS.compile(
-      File.read('spec/jaabro-1.0.0.min.js') +
-      File.read('src/slipdf.js') +
-      File.read('spec/helpers.js'))
-
   def js(s)
 
-    @compiled.exec(s)
+    ExecJS
+      .compile(
+        File.read('spec/jaabro-1.0.0.min.js') +
+        File.read('src/slipdf.js') +
+        File.read('spec/helpers.js'))
+      .exec(s)
   end
 end
 RSpec.configure { |c| c.include(Helpers) }
