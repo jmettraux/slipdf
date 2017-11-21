@@ -10,7 +10,7 @@ require 'spec_helpers'
 
 describe 'Slipdf' do
 
-  describe '.template' do
+  describe '.compile' do
 
     it 'creates a template' do
 
@@ -20,7 +20,7 @@ describe 'Slipdf' do
             'document\n' +
             '  footer\n' +
             '    image.logo\n';
-          return Slipdf.template(s);
+          return Slipdf.compile(s);
         }
       ).to eq(:x)
     end

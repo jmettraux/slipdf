@@ -60,7 +60,7 @@ var Slipdf = (function() {
 
   // public
 
-  this.template = function(s) {
+  this.compile = function(s) {
 
     var t = SlipdfParser.parse(s);
 
