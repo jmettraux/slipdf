@@ -4,7 +4,6 @@ var SlipdfParser = Jaabro.makeParser(function() {
   // parse
 
   function eol(i) { return rex(null, i, /\n+/); }
-  function comment(i) { return rex(null, i, / \s*\/[^\n]+/); }
   function equal(i) { return rex(null, i, /[ \t]*=[ \t]*/); }
   function pipe(i) { return rex(null, i, /\|\s*/); }
   function space(i) { return rex('space', i, /[ \t]+/); }
@@ -23,11 +22,9 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function head(i) { return seq('head', i, tag, klass, '*'); }
 
   function stringLine(i) {
-    return seq('sline', i,
-      spacestar, pipe, string, eol); }
+    return seq('sline', i, spacestar, pipe, string, eol); }
   function plainLine(i) {
-    return seq('pline', i,
-      spacestar, head, attribute, '*', comment, '?', eol); }
+    return seq('pline', i, spacestar, head, attribute, '*', eol); }
 
   function blankLine(i) { return rex(null, i, /\s*\n+/); }
   function commentLine(i) { return rex(null, i, /\s*\/[^\n]*\n+/); }
