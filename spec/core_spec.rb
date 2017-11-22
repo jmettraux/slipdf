@@ -22,7 +22,13 @@ describe 'Slipdf' do
             '    image.logo\n';
           return Slipdf.compile(s);
         }
-      ).to eq(:x)
+      ).to eq(
+        { 'tag' => 'document', 'children' => [
+            { 'tag' => 'footer', 'children' => [
+              { 'tag' => 'image', 'classes' => %w[ logo ] }
+            ] }
+          ] }
+      )
     end
   end
 

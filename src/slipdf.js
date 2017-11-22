@@ -37,12 +37,20 @@ var SlipdfParser = Jaabro.makeParser(function() {
   }
 
   function rewrite_line(t) {
+
     var o = {};
+
     o.indent = t.lookup('space').length;
+
     var head = t.lookup('head');
+
     o.tag = head.lookup('tag').string();
-    var cs = head.gather('class').map(function(c) { return c.string(); });
+
+    var cs = head
+      .gather('class')
+      .map(function(c) { return c.string().slice(1); });
     if (cs.length > 0) o.classes = cs;
+
     return o;
   }
 }); // end SlipdfParser
@@ -64,7 +72,24 @@ var Slipdf = (function() {
 
     var t = SlipdfParser.parse(s);
 
-    return t;
+    var root =
+      { indent: -1, tag: 'root', children: [] };
+    t.reduce(
+      function(parent, line) {
+        while (line.indent <= parent.indent) parent = parent.parent;
+        if ( ! parent.children) parent.children = [];
+        parent.children.push(line);
+        line.parent = parent;
+        return line;
+      },
+      root);
+    t.forEach(
+      function(line) {
+        delete line.indent;
+        delete line.parent; });
+
+    if (root.children.length === 1) return root.children[0];
+    return root;
   };
 
   // done.
