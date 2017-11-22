@@ -6,8 +6,11 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function eol(i) { return rex(null, i, /\n+/); }
   function comment(i) { return rex(null, i, / \s*\/[^\n]+/); }
   function equal(i) { return rex(null, i, /[ \t]*=[ \t]*/); }
+  function pipe(i) { return rex(null, i, /\|\s*/); }
   function space(i) { return rex('space', i, /[ \t]+/); }
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
+
+  function string(i) { return rex('string', i, /[^\n]+/); }
 
   function name(i) { return rex('name', i, /[-_a-zA-Z0-9]+/); }
   function value(i) { return rex('value', i, /[^ ]+/); }
@@ -19,13 +22,18 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function head(i) { return seq('head', i, tag, klass, '*'); }
 
+  function stringLine(i) {
+    return seq('sline', i,
+      spacestar, pipe, string, eol); }
   function plainLine(i) {
-    return seq('line', i, spacestar, head, attribute, '*', comment, '?', eol); }
+    return seq('pline', i,
+      spacestar, head, attribute, '*', comment, '?', eol); }
 
   function blankLine(i) { return rex(null, i, /\s*\n+/); }
   function commentLine(i) { return rex(null, i, /\s*\/[^\n]*\n+/); }
 
-  function line(i) { return alt(null, i, blankLine, commentLine, plainLine); }
+  function line(i) {
+    return alt(null, i, blankLine, commentLine, plainLine, stringLine); }
   function lines(i) { return seq('lines', i, line, '*'); }
 
   var root = lines;
@@ -33,23 +41,34 @@ var SlipdfParser = Jaabro.makeParser(function() {
   // rewrite
 
   function rewrite_lines(t) {
-    return t.gather('line').map(function(l) { return rewrite(l); });
+
+    return t
+      .subgather()
+      .map(function(l) { return rewrite(l); });
   }
 
-  function rewrite_line(t) {
-
-    var o = {};
-
-    o.i = t.lookup('space').length;
+  function rewrite_pline(t) {
 
     var head = t.lookup('head');
 
+    var o = {};
+      //
+    o.i = t.lookup('space').length;
     o.t = head.lookup('tag').string();
-
+      //
     var cs = head
       .gather('class')
       .map(function(c) { return c.string().slice(1); });
     if (cs.length > 0) o.cs = cs;
+
+    return o;
+  }
+
+  function rewrite_sline(t) {
+
+    var o = {};
+    o.i = t.lookup('space').length;
+    o.s = t.lookup('string').string();
 
     return o;
   }
@@ -70,6 +89,7 @@ var Slipdf = (function() {
 
   this.prepare = function(s) {
 
+//return SlipdfParser.parse(s, { debug: 2 });
     var t = SlipdfParser.parse(s);
 
     var root =
@@ -93,7 +113,7 @@ var Slipdf = (function() {
   };
 
   this.compile = function(s) {
-  }
+  };
 
   // done.
 

@@ -31,18 +31,22 @@ describe 'Slipdf' do
       )
     end
 
-#    it 'creates a template (with strings)' do
-#
-#      expect(js %q{
-#        var s =
-#          'document\n' +
-#          '  footer\n' +
-#          '    | fun stuff\n';
-#        return Slipdf.prepare(s);
-#      }).to eq(
-#        :xxx
-#      )
-#    end
+    it 'creates a template (with strings)' do
+
+      expect(js %q{
+        var s =
+          'document\n' +
+          '  footer\n' +
+          '    | fun stuff\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'document', 'cn' => [
+            { 't' => 'footer', 'cn' => [
+              { 's' => 'fun stuff' }
+            ] }
+          ] }
+      )
+    end
   end
 
   describe '.compile' do

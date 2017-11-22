@@ -35,7 +35,7 @@ module Helpers
 
     ExecJS
       .compile(
-        File.read('spec/jaabro-1.0.0.min.js') +
+        File.read('spec/jaabro-1.1.0.min.js') +
         File.read('src/slipdf.js') +
         File.read('spec/helpers.js'))
       .exec(s)
