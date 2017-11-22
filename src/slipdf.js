@@ -27,8 +27,13 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return seq('cline', i, spacestar, dashOrEqual, code, eol); }
   function stringLine(i) {
     return seq('sline', i, spacestar, pipe, string, eol); }
+
+  function plainCode(i) { return rex('code', i, /\s*=[^\n]+/); }
+  function plainRest(i) { return alt(null, i, plainCode, string); }
+
   function plainLine(i) {
-    return seq('pline', i, spacestar, head, attribute, '*', eol); }
+    return seq('pline', i,
+      spacestar, head, attribute, '*', plainRest, '?', eol); }
 
   function blankLine(i) { return rex(null, i, /\s*\n+/); }
   function commentLine(i) { return rex(null, i, /\s*\/[^\n]*\n+/); }
@@ -62,6 +67,9 @@ var SlipdfParser = Jaabro.makeParser(function() {
       .gather('class')
       .map(function(c) { return c.string().slice(1); });
     if (cs.length > 0) o.cs = cs;
+      //
+    var cos = t.lookup('code') || t.lookup('string');
+    if (cos) o.cn = [ rewrite(cos) ];
 
     return o;
   }
@@ -84,6 +92,16 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
     return o;
   }
+
+  function rewrite_string(t) {
+
+    return { s: t.string().trim() };
+  };
+
+  function rewrite_code(t) {
+
+    return { x: '=', c: t.string().trim().slice(1).trim() };
+  };
 }); // end SlipdfParser
 
 

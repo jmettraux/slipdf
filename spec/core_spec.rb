@@ -66,6 +66,38 @@ describe 'Slipdf' do
           ] }
       )
     end
+
+    it 'creates a template (with eol code)' do
+
+      expect(js %q{
+        var s =
+          'document\n' +
+          '  orientation= user.name\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'document', 'cn' => [
+            { 't' => 'orientation', 'cn' => [
+              { 'x' => '=', 'c' => 'user.name' }
+            ] },
+          ] }
+      )
+    end
+
+    it 'creates a template (with eol text)' do
+
+      expect(js %q{
+        var s =
+          'document\n' +
+          '  orientation landscape\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'document', 'cn' => [
+            { 't' => 'orientation', 'cn' => [
+              { 's' => 'landscape' }
+            ] },
+          ] }
+      )
+    end
   end
 
   describe '.compile' do
