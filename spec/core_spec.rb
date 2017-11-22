@@ -10,7 +10,7 @@ require 'spec_helpers'
 
 describe 'Slipdf' do
 
-  describe '.compile' do
+  describe '.prepare' do
 
     it 'creates a template' do
 
@@ -20,7 +20,7 @@ describe 'Slipdf' do
             'document\n' +
             '  footer\n' +
             '    image.logo\n';
-          return Slipdf.compile(s);
+          return Slipdf.prepare(s);
         }
       ).to eq(
         { 't' => 'document', 'cn' => [
@@ -30,11 +30,29 @@ describe 'Slipdf' do
           ] }
       )
     end
+
+#    it 'creates a template (with strings)' do
+#
+#      expect(js %q{
+#        var s =
+#          'document\n' +
+#          '  footer\n' +
+#          '    | fun stuff\n';
+#        return Slipdf.prepare(s);
+#      }).to eq(
+#        :xxx
+#      )
+#    end
+  end
+
+  describe '.compile' do
+
+    it 'returns a template function'
   end
 
   describe 'template' do
 
-    describe '.generate' do
+    describe '()' do
 
       it 'generates a pdfmake document'
     end

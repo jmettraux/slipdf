@@ -68,7 +68,7 @@ var Slipdf = (function() {
 
   // public
 
-  this.compile = function(s) {
+  this.prepare = function(s) {
 
     var t = SlipdfParser.parse(s);
 
@@ -91,6 +91,9 @@ var Slipdf = (function() {
     if (root.cn.length === 1) return root.cn[0];
     return root;
   };
+
+  this.compile = function(s) {
+  }
 
   // done.
 
