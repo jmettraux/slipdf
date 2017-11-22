@@ -23,9 +23,9 @@ describe 'Slipdf' do
           return Slipdf.compile(s);
         }
       ).to eq(
-        { 'tag' => 'document', 'children' => [
-            { 'tag' => 'footer', 'children' => [
-              { 'tag' => 'image', 'classes' => %w[ logo ] }
+        { 't' => 'document', 'cn' => [
+            { 't' => 'footer', 'cn' => [
+              { 't' => 'image', 'cs' => %w[ logo ] }
             ] }
           ] }
       )
