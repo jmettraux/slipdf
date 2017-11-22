@@ -8,8 +8,10 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function pipe(i) { return rex(null, i, /\|\s*/); }
   function space(i) { return rex('space', i, /[ \t]+/); }
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
+  function dashOrEqual(i) { return rex('doe', i, /[-=]\s*/); }
 
   function string(i) { return rex('string', i, /[^\n]+/); }
+  function code(i) { return rex('code', i, /[^\n]+/); }
 
   function name(i) { return rex('name', i, /[-_a-zA-Z0-9]+/); }
   function value(i) { return rex('value', i, /[^ ]+/); }
@@ -21,6 +23,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function head(i) { return seq('head', i, tag, klass, '*'); }
 
+  function codeLine(i) {
+    return seq('cline', i, spacestar, dashOrEqual, code, eol); }
   function stringLine(i) {
     return seq('sline', i, spacestar, pipe, string, eol); }
   function plainLine(i) {
@@ -30,9 +34,10 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function commentLine(i) { return rex(null, i, /\s*\/[^\n]*\n+/); }
 
   function line(i) {
-    return alt(null, i, blankLine, commentLine, plainLine, stringLine); }
-  function lines(i) { return seq('lines', i, line, '*'); }
+    return alt(null, i,
+      blankLine, commentLine, stringLine, codeLine, plainLine); }
 
+  function lines(i) { return seq('lines', i, line, '*'); }
   var root = lines;
 
   // rewrite
@@ -66,6 +71,16 @@ var SlipdfParser = Jaabro.makeParser(function() {
     var o = {};
     o.i = t.lookup('space').length;
     o.s = t.lookup('string').string();
+
+    return o;
+  }
+
+  function rewrite_cline(t) {
+
+    var o = {};
+    o.i = t.lookup('space').length;
+    o.x = t.lookup('doe').string().trim();
+    o.c = t.lookup('code').string();
 
     return o;
   }

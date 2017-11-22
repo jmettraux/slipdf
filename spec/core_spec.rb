@@ -47,6 +47,25 @@ describe 'Slipdf' do
           ] }
       )
     end
+
+    it 'creates a template (with code)' do
+
+      expect(js %q{
+        var s =
+          'document\n' +
+          '  = user.name\n' +
+          '  - user.items.forEach(function(i) \{\n' +
+          '    = i.count\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'document', 'cn' => [
+            { 'x' => '=', 'c' => 'user.name' },
+            { 'x' => '-', 'c' => 'user.items.forEach(function(i) {', 'cn' => [
+              { 'x' => '=', 'c' => 'i.count' }
+            ] },
+          ] }
+      )
+    end
   end
 
   describe '.compile' do
