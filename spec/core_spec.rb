@@ -111,7 +111,7 @@ describe 'Slipdf' do
       print_tree js(%q{
         var s =
           'doc\n' +
-          '  x user: #{user.login} id: #{user.id}\n';
+          '  x user: #{user.login} id: #{user.id}\n' +
           '    | name: #{user.name}\n';
         return Slipdf.debug(s, 3);
       })
