@@ -33,6 +33,13 @@ describe 'Slipdf' do
 
     it 'creates a template (with strings)' do
 
+      #print_tree js(%q{
+      #  var s =
+      #    'document\n' +
+      #    '  footer\n' +
+      #    '    | fun stuff\n';
+      #  return Slipdf.debug(s, 3);
+      #})
       expect(js %q{
         var s =
           'document\n' +
@@ -94,6 +101,28 @@ describe 'Slipdf' do
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
               { 's' => 'landscape' }
+            ] },
+          ] }
+      )
+    end
+
+    it 'creates a template (with hash bracket)' do
+
+      expect(js %q{
+        var s =
+          'doc\n' +
+          '  x user: #{user.login} id: #{user.id}\n';
+          '    | name: #{user.name}\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'doc', 'cn' => [
+            { 't' => 'x', 'cn' => [
+              { 's' => 'user: ' },
+              { 'x' => '=', 'c' => 'user.login' },
+              { 's' => 'id: ' },
+              { 'x' => '=', 'c' => 'user.id' },
+              { 's' => 'name: ' },
+              { 'x' => '=', 'c' => 'user.name' },
             ] },
           ] }
       )
