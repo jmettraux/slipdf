@@ -62,13 +62,17 @@ module Helpers
       ' ' << r << ' ' <<
       n['parter'] << "(#{o}, #{l})"
 
-    mw = mw - sio.length - 3 - 10
+    mw = mw - sio.length - 3 - 10; mw = 0 if mw < 0
     s = s[0, mw]
-    s.insert(l, sc1) if l < mw
+    if l < mw
+      s.insert(l, sc1)
+    elsif l > mw
+      s = s + sc1 + '...'
+    end
     s = s.gsub(/\n/, '\n')
 
     sio <<
-      '>' << sc0 << s << tc << '<'
+      ' >' << sc0 << s << tc << '<'
 
     puts sio.string
 
