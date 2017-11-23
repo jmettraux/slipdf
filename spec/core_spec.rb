@@ -76,6 +76,12 @@ describe 'Slipdf' do
 
     it 'creates a template (with eol code)' do
 
+      print_tree js(%q{
+        var s =
+          'document\n' +
+          '  orientation= user.name\n';
+        return Slipdf.debug(s, 3);
+      })
       expect(js %q{
         var s =
           'document\n' +
@@ -100,7 +106,7 @@ describe 'Slipdf' do
       }).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
-              { 's' => 'landscape' }
+              { 's' => ' landscape' }
             ] },
           ] }
       )
@@ -118,18 +124,20 @@ describe 'Slipdf' do
       expect(js %q{
         var s =
           'doc\n' +
-          '  x user: #{user.login} id: #{user.id}\n';
+          '  x user: #{user.login} id: #{user.id}\n' +
           '    | name: #{user.name}\n';
         return Slipdf.prepare(s);
       }).to eq(
         { 't' => 'doc', 'cn' => [
             { 't' => 'x', 'cn' => [
-              { 's' => 'user: ' },
+              { 's' => ' user: ' },
               { 'x' => '=', 'c' => 'user.login' },
-              { 's' => 'id: ' },
+              { 's' => ' id: ' },
               { 'x' => '=', 'c' => 'user.id' },
-              { 's' => 'name: ' },
-              { 'x' => '=', 'c' => 'user.name' },
+              { 'cn' => [
+                { 's' => 'name: ' },
+                { 'x' => '=', 'c' => 'user.name' },
+              ] },
             ] },
           ] }
       )

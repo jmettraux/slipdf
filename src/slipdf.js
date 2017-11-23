@@ -10,7 +10,6 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
   function dashOrEqual(i) { return rex('doe', i, /[-=]\s*/); }
 
-  //function string(i) { return rex('string', i, /[^\n]+/); }
   function codeBracket(i) { return rex('code', i, /[^}]+/); }
   function endBracket(i) { return str(null, i, '}'); }
   function hashBracket(i) { return str(null, i, '#{'); }
@@ -58,9 +57,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function rewrite_lines(t) {
 
-    return t
-      .subgather()
-      .map(function(l) { return rewrite(l); });
+    return t.subgather().map(rewrite);
   }
 
   function rewrite_pline(t) {
@@ -78,8 +75,9 @@ var SlipdfParser = Jaabro.makeParser(function() {
     if (cs.length > 0) o.cs = cs;
 
     var tex = t.lookup('text');
-    var cos = tex ? tex.subgather() : [];
-    if (cos.length > 0) o.cn = cos.map(rewrite);
+    var cod = tex || t.lookup('code');
+    if (tex) o.cn = rewrite(tex);
+    else if (cod) o.cn = [ rewrite(cod) ];
 
     return o;
   }
@@ -88,7 +86,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
     var o = {};
     o.i = t.lookup('space').length;
-    o.s = t.lookup('string').string();
+    o.cn = rewrite(t.lookup('text'));
 
     return o;
   }
@@ -103,15 +101,23 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return o;
   }
 
+  function rewrite_text(t) {
+
+    return t.subgather().map(rewrite);
+  };
+
   function rewrite_string(t) {
 
-    return { s: t.string().trim() };
+    return { s: t.string() };
   };
 
   function rewrite_code(t) {
 
-    //return { x: '=', c: t.string().trim().slice(1).trim() };
-    return { x: '=', c: t.string().trim() };
+    var c = t.string();
+    var m = c.match(/\s*=\s*(.+)/);
+    if (m) c = m[1];
+
+    return { x: '=', c: c };
   };
 }); // end SlipdfParser
 
