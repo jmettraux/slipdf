@@ -68,17 +68,18 @@ var SlipdfParser = Jaabro.makeParser(function() {
     var head = t.lookup('head');
 
     var o = {};
-      //
+
     o.i = t.lookup('space').length;
     o.t = head.lookup('tag').string();
-      //
+
     var cs = head
       .gather('class')
       .map(function(c) { return c.string().slice(1); });
     if (cs.length > 0) o.cs = cs;
-      //
-    var cos = t.lookup('code') || t.lookup('string');
-    if (cos) o.cn = [ rewrite(cos) ];
+
+    var tex = t.lookup('text');
+    var cos = tex ? tex.subgather() : [];
+    if (cos.length > 0) o.cn = cos.map(rewrite);
 
     return o;
   }
@@ -109,7 +110,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function rewrite_code(t) {
 
-    return { x: '=', c: t.string().trim().slice(1).trim() };
+    //return { x: '=', c: t.string().trim().slice(1).trim() };
+    return { x: '=', c: t.string().trim() };
   };
 }); // end SlipdfParser
 
