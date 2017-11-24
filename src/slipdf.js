@@ -146,7 +146,16 @@ var Slipdf = (function() {
 
   var apply_value_code = function(tree, context) {
 
-    return (function() { return eval(tree.c); }).call(context);
+    var ks = Object.keys(context);
+    if (ks.length < 1) ks.push('_');
+
+    var func =
+      eval("(function(code, " + ks.join(',') + ") { return eval(code); })");
+
+    var args = ks.map(function(k) { return context[k]; });
+    args.splice(0, 0, tree.c);
+
+    return func.apply(null, args);
   };
 
   var apply_value = function(tree, context) {
