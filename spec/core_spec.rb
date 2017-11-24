@@ -178,23 +178,26 @@ describe 'Slipdf' do
 
     describe '()' do
 
-      it 'generates a pdfmake document' do
+      Dir['spec/template_*.slim'].each do |slim|
 
-        src = File.read(
-          'spec/template_0.slim').inspect
+        src =
+          File.read(slim).inspect
         ctx = JSON.dump(
-          { user: { name: 'Toto' } })
+          eval(File.read("spec/#{File.basename(slim, '.slim')}_ctx.rb")))
+        res =
+          eval(File.read("spec/#{File.basename(slim, '.slim')}.rb"))
 
-        #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
-        #pp(js "var src = #{src}; return Slipdf.prepare(src);")
+        it "generates a pdfmake document for #{slim}" do
 
-        expect(
-          js "var src = #{src}; return Slipdf.compile(src)(#{ctx});"
-        ).to eq({
-          'pageSize' => 'A4',
-          'pageOrientation' => 'portrait',
-          'pageMargins' => [ 7, 35, 7, 91 ]
-        })
+          #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
+          #pp(js "var src = #{src}; return Slipdf.prepare(src);")
+
+          expect(
+            js "return Slipdf.compile(#{src})(#{ctx});"
+          ).to eq(
+            res
+          )
+        end
       end
     end
   end
