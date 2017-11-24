@@ -160,14 +160,40 @@ describe 'Slipdf' do
 
   describe '.compile' do
 
-    it 'returns a template function'
+    it 'returns a template function' do
+
+      expect(js %q{
+        var s =
+          'doc\n' +
+          '  - user.children.forEach(function(c) \{\n' +
+          '    name= c.name\n';
+        return (typeof Slipdf.compile(s));
+      }).to eq(
+        'function'
+      )
+    end
   end
 
   describe 'template' do
 
     describe '()' do
 
-      it 'generates a pdfmake document'
+      it 'generates a pdfmake document' do
+
+        src = File.read(
+          'spec/template_0.slim').inspect
+        ctx = JSON.dump(
+          { user: { name: 'Toto' } })
+
+        #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
+        pp(js "var src = #{src}; return Slipdf.prepare(src);")
+
+        expect(
+          js "var src = #{src}; return Slipdf.compile(src)(#{ctx});"
+        ).to eq(
+          :xxx
+        )
+      end
     end
   end
 end

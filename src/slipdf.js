@@ -132,6 +132,42 @@ var Slipdf = (function() {
 
   // protected
 
+  var lookup = function(tree, tag) {
+
+    if (tree.t === tag) return tree;
+    if ( ! tree.cn) return null;
+    for (var i = 0, l = tree.cn.length; i < l; i++) {
+      var r = lookup(tree.cn[i]); if (r) return r;
+    }
+    return null;
+  };
+
+  var apply_key_equal_value = function(tree, context) {
+  };
+
+//    var d = {
+//
+//      pageSize: 'A4',
+//      pageOrientation: 'portrait',
+//      pageMargins: [ 7, 35, 7, 91 ],
+//
+//      styles: {},
+//      content: [],
+//    };
+  var apply_document = function(tree, context) {
+
+    if (tree.t !== 'document') throw new Error('Root is not a "document"');
+
+    var doc = {};
+
+    [ 'pageSize', 'pageOrientation', 'pageMargins' ].forEach(function(k) {
+      var t = lookup(tree, k);
+      if (t) doc[k] = apply_key_equal_value(t, context);
+    });
+
+    return doc;
+  };
+
   // public
 
   this.debug = function(s, debugLevel) {
@@ -169,10 +205,8 @@ var Slipdf = (function() {
 
   this.compile = function(s) {
 
-    var t = self.prepare(s);
-
-    return function(context) {
-    };
+    var tree = self.prepare(s);
+    return function(context) { return apply_document(tree, context); };
   };
 
   // done.
