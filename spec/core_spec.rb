@@ -140,6 +140,22 @@ describe 'Slipdf' do
           ] }
       )
     end
+
+    it 'creates a template (with loop)' do
+
+      expect(js %q{
+        var s =
+          'doc\n' +
+          '  - user.children.forEach(function(c) \{\n' +
+          '    name= c.name\n';
+        return Slipdf.prepare(s);
+      }).to eq(
+        { 't' => 'doc', 'cn' => [
+          { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
+            { 't' => 'name', 'cn' => [
+              { 'x' => '=', 'c' => 'c.name' } ] } ] } ] }
+      )
+    end
   end
 
   describe '.compile' do
