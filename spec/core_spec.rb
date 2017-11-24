@@ -76,12 +76,12 @@ describe 'Slipdf' do
 
     it 'creates a template (with eol code)' do
 
-      print_tree js(%q{
-        var s =
-          'document\n' +
-          '  orientation= user.name\n';
-        return Slipdf.debug(s, 3);
-      })
+      #print_tree js(%q{
+      #  var s =
+      #    'document\n' +
+      #    '  orientation= user.name\n';
+      #  return Slipdf.debug(s, 3);
+      #})
       expect(js %q{
         var s =
           'document\n' +
@@ -114,13 +114,13 @@ describe 'Slipdf' do
 
     it 'creates a template (with hash bracket)' do
 
-      print_tree js(%q{
-        var s =
-          'doc\n' +
-          '  x user: #{user.login} id: #{user.id}\n' +
-          '    | name: #{user.name}\n';
-        return Slipdf.debug(s, 3);
-      })
+      #print_tree js(%q{
+      #  var s =
+      #    'doc\n' +
+      #    '  x user: #{user.login} id: #{user.id}\n' +
+      #    '    | name: #{user.name}\n';
+      #  return Slipdf.debug(s, 3);
+      #})
       expect(js %q{
         var s =
           'doc\n' +
@@ -134,10 +134,8 @@ describe 'Slipdf' do
               { 'x' => '=', 'c' => 'user.login' },
               { 's' => ' id: ' },
               { 'x' => '=', 'c' => 'user.id' },
-              { 'cn' => [
-                { 's' => 'name: ' },
-                { 'x' => '=', 'c' => 'user.name' },
-              ] },
+              { 's' => 'name: ' },
+              { 'x' => '=', 'c' => 'user.name' },
             ] },
           ] }
       )

@@ -149,9 +149,17 @@ var Slipdf = (function() {
       function(parent, line) {
         while (line.i <= parent.i) parent = parent.p;
         if ( ! parent.cn) parent.cn = [];
-        parent.cn.push(line);
-        line.p = parent;
-        return line;
+        //if (line.cn && ! line.t && ! line.s && ! line.c) {
+        var ks = Object.keys(line);
+        if (ks.length == 2 && line.cn) {
+          line.cn.forEach(function(c) { parent.cn.push(c); });
+          return parent;
+        }
+        else {
+          parent.cn.push(line);
+          line.p = parent;
+          return line;
+        }
       },
       root);
     t.forEach(
