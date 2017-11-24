@@ -190,7 +190,7 @@ describe 'Slipdf' do
         it "generates a pdfmake document for #{slim}" do
 
           #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
-          #pp(js "var src = #{src}; return Slipdf.prepare(src);")
+          pp(js "var src = #{src}; return Slipdf.prepare(src);")
 
           expect(
             js "return Slipdf.compile(#{src})(#{ctx});"

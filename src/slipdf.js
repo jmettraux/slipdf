@@ -132,12 +132,14 @@ var Slipdf = (function() {
 
   // protected
 
-  var lookup = function(tree, tag) {
+  var lookup = function(tree, tags) {
 
-    if (tree.t === tag) return tree;
+    if ((typeof tags) === 'string') tags = [ tags ];
+
+    if (tags.includes(tree.t)) return tree;
     if ( ! tree.cn) return null;
     for (var i = 0, l = tree.cn.length; i < l; i++) {
-      var r = lookup(tree.cn[i], tag); if (r) return r;
+      var r = lookup(tree.cn[i], tags); if (r) return r;
     }
     return null;
   };
@@ -159,13 +161,18 @@ var Slipdf = (function() {
       '')
   };
 
-//    var d = {
-//
-//      pageSize: 'A4', ...
-//
-//      styles: {},
-//      content: [],
-//    };
+  var apply_text = function(tree, context) {
+
+    return { text: apply_value(tree, context).toString().trim() };
+  };
+  var apply_p = apply_text;
+
+  var apply_content = function(tree, context) {
+
+    return tree.cn
+      .map(function(c) { return eval('apply_' + c.t)(c, context); });
+  };
+
   var apply_document = function(tree, context) {
 
     if (tree.t !== 'document') throw new Error('Root is not a "document"');
@@ -180,6 +187,13 @@ var Slipdf = (function() {
         doc[k] = v;
       }
     });
+
+    var content = lookup(tree, [ 'content', 'body' ]);
+
+    if ( ! content) {
+      throw new Error('Document is missing a "content" or "body" node'); }
+
+    doc.content = apply_content(content, context);
 
     return doc;
   };
