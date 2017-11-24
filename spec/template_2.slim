@@ -1,0 +1,15 @@
+
+document
+  pageSize A4
+  pageOrientation portrait
+  pageMargins= [ 7, 35, 7, 91 ]
+
+  header
+  footer
+
+  content
+    p This is template #{template}
+    - users.push('David')
+    - users.forEach(function(user) {
+      p= user.name
+

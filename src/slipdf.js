@@ -144,7 +144,7 @@ var Slipdf = (function() {
     return null;
   };
 
-  var apply_value_code = function(tree, context) {
+  var do_eval = function(context, code) {
 
     var ks = Object.keys(context);
     if (ks.length < 1) ks.push('_');
@@ -153,9 +153,14 @@ var Slipdf = (function() {
       eval("(function(code, " + ks.join(',') + ") { return eval(code); })");
 
     var args = ks.map(function(k) { return context[k]; });
-    args.splice(0, 0, tree.c);
+    args.splice(0, 0, code);
 
     return func.apply(null, args);
+  };
+
+  var apply_value_code = function(tree, context) {
+
+    return do_eval(context, tree.c);
   };
 
   var apply_value = function(tree, context) {
@@ -176,10 +181,30 @@ var Slipdf = (function() {
   };
   var apply_p = apply_text;
 
+  var apply_dash_block = function(tree, context) {
+
+    //var ctx = {};
+    //for (var k in context) { ctx[k] = context[k]; }
+    //ctx.__fun = function() { return apply_content(tree, context); };
+    //return do_eval(ctx, tree.c + "return __fun(); })");
+return "FIXME";
+  };
+
+  var apply_dash = function(tree, context) {
+
+    if (tree.c.match(/{\s*$/)) return apply_dash_block(tree, context);
+    apply_value_code; return null;
+  };
+
   var apply_content = function(tree, context) {
 
     return tree.cn
-      .map(function(c) { return eval('apply_' + c.t)(c, context); });
+      .map(function(c) {
+        var fun;
+        if (c.t) fun = 'apply_' + c.t;
+        else if (c.x === '=') fun = 'apply_equal';
+        else if (c.x === '-') fun = 'apply_dash';
+        return eval(fun)(c, context); });
   };
 
   var apply_document = function(tree, context) {
@@ -202,7 +227,9 @@ var Slipdf = (function() {
     if ( ! content) {
       throw new Error('Document is missing a "content" or "body" node'); }
 
-    doc.content = apply_content(content, context);
+    doc.content =
+      apply_content(content, context)
+        .filter(function(c) { return c !== null; });
 
     return doc;
   };
