@@ -137,19 +137,31 @@ var Slipdf = (function() {
     if (tree.t === tag) return tree;
     if ( ! tree.cn) return null;
     for (var i = 0, l = tree.cn.length; i < l; i++) {
-      var r = lookup(tree.cn[i]); if (r) return r;
+      var r = lookup(tree.cn[i], tag); if (r) return r;
     }
     return null;
   };
 
-  var apply_key_equal_value = function(tree, context) {
+  var apply_value_code = function(tree, context) {
+
+    return (function() { return eval(tree.c); }).call(context);
+  };
+
+  var apply_value = function(tree, context) {
+
+    if (tree.cn.length === 1 && tree.cn[0].x)
+      return apply_value_code(tree.cn[0], context);
+
+    return tree.cn.reduce(
+      function(s, c) {
+        if (c.s) return s + c.s;
+        return s + apply_value_code(c, context); },
+      '')
   };
 
 //    var d = {
 //
-//      pageSize: 'A4',
-//      pageOrientation: 'portrait',
-//      pageMargins: [ 7, 35, 7, 91 ],
+//      pageSize: 'A4', ...
 //
 //      styles: {},
 //      content: [],
@@ -162,7 +174,11 @@ var Slipdf = (function() {
 
     [ 'pageSize', 'pageOrientation', 'pageMargins' ].forEach(function(k) {
       var t = lookup(tree, k);
-      if (t) doc[k] = apply_key_equal_value(t, context);
+      if (t) {
+        var v = apply_value(t, context);
+        if ((typeof v) === 'string') v = v.trim();
+        doc[k] = v;
+      }
     });
 
     return doc;

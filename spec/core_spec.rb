@@ -186,13 +186,15 @@ describe 'Slipdf' do
           { user: { name: 'Toto' } })
 
         #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
-        pp(js "var src = #{src}; return Slipdf.prepare(src);")
+        #pp(js "var src = #{src}; return Slipdf.prepare(src);")
 
         expect(
           js "var src = #{src}; return Slipdf.compile(src)(#{ctx});"
-        ).to eq(
-          :xxx
-        )
+        ).to eq({
+          'pageSize' => 'A4',
+          'pageOrientation' => 'portrait',
+          'pageMargins' => [ 7, 35, 7, 91 ]
+        })
       end
     end
   end
