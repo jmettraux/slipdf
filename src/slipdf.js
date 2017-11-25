@@ -177,34 +177,50 @@ var Slipdf = (function() {
 
   var apply_text = function(tree, context) {
 
-    return { text: apply_value(tree, context).toString().trim() };
+    var t = apply_value(tree, context);
+    if (t) t = t.toString().trim();
+
+    return { text: t };
   };
   var apply_p = apply_text;
 
   var apply_dash_block = function(tree, context) {
 
-    //var ctx = {};
-    //for (var k in context) { ctx[k] = context[k]; }
-    //ctx.__fun = function() { return apply_content(tree, context); };
-    //return do_eval(ctx, tree.c + "return __fun(); })");
-return "FIXME";
+    var rs = [];
+
+    var m = tree.c.match(/\bfunction\s*\(([^)]*)\s*\)\s*{\s*$/);
+    var as = m[1].trim().split(/\s*,\s*/);
+    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    ctx.__fun = function(args) {
+      as.forEach(function(a, i) { ctx[a] = args[i]; });
+      apply_content(tree, ctx).forEach(function(c) { rs.push(c) });
+    };
+    do_eval(ctx, tree.c + " return __fun(arguments); })");
+
+    return rs;
   };
 
   var apply_dash = function(tree, context) {
 
     if (tree.c.match(/{\s*$/)) return apply_dash_block(tree, context);
-    apply_value_code; return null;
+    apply_value_code(tree, context); return null;
   };
 
   var apply_content = function(tree, context) {
 
     return tree.cn
       .map(function(c) {
-        var fun;
-        if (c.t) fun = 'apply_' + c.t;
+        //
+        var fun; if (c.t) fun = 'apply_' + c.t;
         else if (c.x === '=') fun = 'apply_equal';
         else if (c.x === '-') fun = 'apply_dash';
-        return eval(fun)(c, context); });
+        //
+        return eval(fun)(c, context); })
+      .reduce(
+        function(a, e) {
+          if (Array.isArray(e)) { a = a.concat(e); } else { a.push(e); };
+          return a; },
+        []);
   };
 
   var apply_document = function(tree, context) {
