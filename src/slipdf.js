@@ -184,25 +184,46 @@ var Slipdf = (function() {
   };
   var apply_p = apply_text;
 
-  var apply_dash_block = function(tree, context) {
+  var apply_dash_block = function(tree, context, match) {
 
     var rs = [];
 
-    var m = tree.c.match(/\bfunction\s*\(([^)]*)\s*\)\s*{\s*$/);
-    var as = m[1].trim().split(/\s*,\s*/);
+    var as = match[1].trim().split(/\s*,\s*/);
     var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
     ctx.__fun = function(args) {
       as.forEach(function(a, i) { ctx[a] = args[i]; });
       apply_content(tree, ctx).forEach(function(c) { rs.push(c) });
     };
-    do_eval(ctx, tree.c + " return __fun(arguments); })");
+    do_eval(
+      ctx, tree.c + ' return __fun(arguments); })');
+
+    return rs;
+  };
+
+  var apply_dash_for = function(tree, context, m) {
+
+    var rs = [];
+
+    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    ctx.__fun = function() {
+      apply_content(tree, ctx).forEach(function(c) { rs.push(c) });
+    };
+    do_eval(
+      ctx, tree.c + ' context.' + m[1] + ' = ' + m[1] +';' + ' __fun(); }');
 
     return rs;
   };
 
   var apply_dash = function(tree, context) {
 
-    if (tree.c.match(/{\s*$/)) return apply_dash_block(tree, context);
+    //if (tree.c.match(/{\s*$/)) return apply_dash_block(tree, context);
+
+    var m = tree.c.match(/\bfunction\s*\(([^)]*)\s*\)\s*{\s*$/);
+    if (m) return apply_dash_block(tree, context, m);
+
+    m = tree.c.match(/\bfor\s*\(var\s+([^\s=]+)\s*=.+{\s*$/);
+    if (m) return apply_dash_for(tree, context, m);
+
     apply_value_code(tree, context); return null;
   };
 

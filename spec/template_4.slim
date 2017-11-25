@@ -1,0 +1,14 @@
+
+document
+  pageSize A4
+  pageOrientation portrait
+  pageMargins= [ 7, 35, 7, 91 ]
+
+  header
+  footer
+
+  content
+    p This is template #{template}
+    - for (var i = 0, l = users.length; i < l; i++) {
+      p= users[i].name
+
