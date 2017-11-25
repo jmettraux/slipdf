@@ -182,6 +182,8 @@ describe 'Slipdf' do
 
         i = slim.match(/\d+/)[0].to_i
 
+        sli =
+          File.basename(slim)
         src =
           File.read(slim).inspect
         ctx = JSON.dump(
@@ -189,7 +191,7 @@ describe 'Slipdf' do
         res =
           eval(File.read("spec/t_#{i}.rb"))
 
-        it "generates a pdfmake document for #{slim}" do
+        it "generates a pdfmake document for #{sli}" do
 
           #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
           pp(js "var src = #{src}; return Slipdf.prepare(src);")
