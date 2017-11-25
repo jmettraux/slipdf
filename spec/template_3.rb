@@ -4,6 +4,8 @@
   'pageMargins' => [ 7, 35, 7, 91 ],
   'content' => [
     { 'text' => 'This is template 2' },
-    { 'text' => 'David' }
+    { 'text' => 'Alice' },
+    { 'text' => 'Bob' },
+    { 'text' => 'Charly' }
   ]
 }

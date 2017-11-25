@@ -10,5 +10,6 @@ document
   content
     p This is template #{template}
     - users.push('David')
-    p= users[users.length - 1]
+    - users.forEach(function(user) {
+      p= user.name
 
