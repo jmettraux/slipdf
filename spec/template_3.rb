@@ -6,6 +6,7 @@
     { 'text' => 'This is template 3' },
     { 'text' => 'Alice' },
     { 'text' => 'Bob' },
-    { 'text' => 'Charly' }
+    { 'text' => 'Charly' },
+    { 'text' => 'David' }
   ]
 }
