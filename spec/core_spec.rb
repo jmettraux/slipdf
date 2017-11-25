@@ -178,14 +178,16 @@ describe 'Slipdf' do
 
     describe '()' do
 
-      Dir['spec/template_*.slim'].each do |slim|
+      Dir['spec/t_*.slim'].each do |slim|
+
+        i = slim.match(/\d+/)[0].to_i
 
         src =
           File.read(slim).inspect
         ctx = JSON.dump(
-          eval(File.read("spec/#{File.basename(slim, '.slim')}_ctx.rb")))
+          eval(File.read("spec/t_#{i}_ctx.rb")))
         res =
-          eval(File.read("spec/#{File.basename(slim, '.slim')}.rb"))
+          eval(File.read("spec/t_#{i}.rb"))
 
         it "generates a pdfmake document for #{slim}" do
 

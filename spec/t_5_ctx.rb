@@ -1,5 +1,5 @@
 {
-  template: 3,
+  template: 5,
   users: [
     { name: 'Alice' },
     { name: 'Bob' },
