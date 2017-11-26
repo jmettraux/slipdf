@@ -338,6 +338,8 @@ var Slipdf = (function() {
 
     var t = SlipdfParser.parse(s);
 
+    if ( ! t) throw new Error("Slim parsing failed");
+
     var root =
       { i: -1, t: 'root', cn: [] };
     t.reduce(

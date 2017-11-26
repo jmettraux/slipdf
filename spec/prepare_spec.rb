@@ -157,23 +157,23 @@ describe 'Slipdf' do
       )
     end
 
-#    it 'creates a template (with plain attributes)' do
-#
-#      expect(
-#        js %q{
-#          var s =
-#            'document\n' +
-#            '  tag att0="val0"\n';
-#          return Slipdf.prepare(s);
-#        }
-#      ).to eq(
-#        { 't' => 'document', 'cn' => [
-#            { 't' => 'footer', 'cn' => [
-#              { 't' => 'image', 'cs' => %w[ logo ] }
-#            ] }
-#          ] }
-#      )
-#    end
+    it 'creates a template (with plain attributes)' do
+
+      expect(
+        js %q{
+          var s =
+            'document\n' +
+            '  tag att0="val0"\n';
+          return Slipdf.prepare(s);
+        }
+      ).to eq(
+        { 't' => 'document', 'cn' => [
+            { 't' => 'footer', 'cn' => [
+              { 't' => 'image', 'cs' => %w[ logo ] }
+            ] }
+          ] }
+      )
+    end
   end
 end
 
