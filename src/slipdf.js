@@ -314,6 +314,8 @@ var Slipdf = (function() {
     apply_value_code(tree, context); return null;
   };
 
+  var apply_equal = apply_value_code;
+
   var apply_content = function(tree, context) {
 
     return tree.cn
@@ -329,6 +331,44 @@ var Slipdf = (function() {
           if (Array.isArray(e)) { a = a.concat(e); } else { a.push(e); };
           return a; },
         []);
+  };
+
+  var getAtt = function(tree, context, key) {
+
+    if ( ! tree.as) return null;
+
+    var a = tree.as.find(function(kv) { return kv[0] === key; });
+    if ( ! a) return null;
+
+    return apply_content({ cn: a[1] }, context);
+  };
+
+  var getStringAtt = function(tree, context, key, joiner) {
+
+    joiner = joiner || '';
+
+    var a = getAtt(tree, context, key); if ( ! a) return null;
+
+    return a.map(function(e) { return e.toString(); }).join(joiner);
+  };
+
+  var getAttSingle = function(tree, context, key) {
+
+    var a = getAtt(tree, context, key); return a ? a[0] : null;
+  };
+
+  var apply_img = function(tree, context) {
+
+    var r = {};
+    r.image = getStringAtt(tree, context, 'src');
+    r.style = tree.cs;
+
+    tree.as.forEach(function(kv) {
+      var k = kv[0]; var v = kv[1];
+      if (k === 'src') return;
+      r[k] = getAttSingle(tree, context, k); });
+
+    return r;
   };
 
   var loadDataUrl = function(key, path) {
