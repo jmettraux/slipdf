@@ -74,6 +74,13 @@ var SlipdfParser = Jaabro.makeParser(function() {
       .map(function(c) { return c.string().slice(1); });
     if (cs.length > 0) o.cs = cs;
 
+    t.gather('att').forEach(function(c) {
+      if ( ! o.as) o.as = [];
+      o.as.push([
+        c.lookup('name').string().trim(),
+        c.lookup('value').string().trim() ]);
+    });
+
     var tex = t.lookup('text');
     var cod = tex || t.lookup('code');
     if (tex) o.cn = rewrite(tex);

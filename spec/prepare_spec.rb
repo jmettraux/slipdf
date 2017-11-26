@@ -161,16 +161,16 @@ describe 'Slipdf' do
 
       src = %q{
         document
-          tag att0="val0"
+          tag att0="val0" att1="val1"
       }.inspect
-      print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
         js "return Slipdf.prepare(#{src});"
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
-              [ 'att0', 'val0' ]
+              [ 'att0', '"val0"' ], [ 'att1', '"val1"' ]
             ] }
           ] }
       )
