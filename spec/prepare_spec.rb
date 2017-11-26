@@ -159,17 +159,18 @@ describe 'Slipdf' do
 
     it 'creates a template (with plain attributes)' do
 
+      src = %q{
+        document
+          tag att0="val0"
+      }.inspect
+      print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
       expect(
-        js %q{
-          var s =
-            'document\n' +
-            '  tag att0="val0"\n';
-          return Slipdf.prepare(s);
-        }
+        js "return Slipdf.prepare(#{src});"
       ).to eq(
         { 't' => 'document', 'cn' => [
-            { 't' => 'footer', 'cn' => [
-              { 't' => 'image', 'cs' => %w[ logo ] }
+            { 't' => 'tag', 'as' => [
+              [ 'att0', 'val0' ]
             ] }
           ] }
       )

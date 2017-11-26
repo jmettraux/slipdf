@@ -5,7 +5,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function eol(i) { return rex(null, i, /\n+/); }
   function equal(i) { return rex(null, i, /[ \t]*=[ \t]*/); }
-  function pipe(i) { return rex(null, i, /\|\s*/); }
+  function pipe(i) { return rex(null, i, /\|[ \t]*/); }
   function space(i) { return rex('space', i, /[ \t]+/); }
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
   function dashOrEqual(i) { return rex('doe', i, /[-=]\s*/); }
@@ -22,7 +22,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function code(i) { return rex('code', i, /[^\n]+/); }
 
   function name(i) { return rex('name', i, /[-_a-zA-Z0-9]+/); }
-  function value(i) { return rex('value', i, /[^ ]+/); }
+  function value(i) { return rex('value', i, /\S+/); }
 
   function attribute(i) { return seq('att', i, space, name, equal, value); }
 
@@ -36,19 +36,19 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function stringLine(i) {
     return seq('sline', i, spacestar, pipe, text, eol); }
 
-  function plainCode(i) { return rex('code', i, /\s*=[^\n]+/); }
+  function plainCode(i) { return rex('code', i, /[ \t]*=[^\n]+/); }
   function plainRest(i) { return alt(null, i, plainCode, text); }
 
   function plainLine(i) {
     return seq('pline', i,
       spacestar, head, attribute, '*', plainRest, '?', eol); }
 
-  function blankLine(i) { return rex(null, i, /\s*\n+/); }
-  function commentLine(i) { return rex(null, i, /\s*\/[^\n]*\n+/); }
+  function blankLine(i) { return rex(null, i, /([ \t]*\n+|[ \t]+$)/); }
+  function commentLine(i) { return rex(null, i, /[ \t]*\/[^\n]*\n+/); }
 
   function line(i) {
     return alt(null, i,
-      blankLine, commentLine, stringLine, codeLine, plainLine); }
+      commentLine, stringLine, codeLine, plainLine, blankLine); }
 
   function lines(i) { return seq('lines', i, line, '*'); }
   var root = lines;
