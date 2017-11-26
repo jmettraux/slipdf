@@ -14,14 +14,15 @@ describe 'Slipdf' do
 
     it 'creates a template' do
 
+      src = %q{
+        document
+          footer
+            image.logo
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
       expect(
-        js %q{
-          var s =
-            'document\n' +
-            '  footer\n' +
-            '    image.logo\n';
-          return Slipdf.prepare(s);
-        }
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'footer', 'cn' => [
@@ -33,13 +34,16 @@ describe 'Slipdf' do
 
     it 'creates a template (with strings)' do
 
-      expect(js %q{
-        var s =
-          'document\n' +
-          '  footer\n' +
-          '    | fun stuff\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        document
+          footer
+            | fun stuff
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'footer', 'cn' => [
               { 's' => 'fun stuff' }
@@ -59,7 +63,7 @@ describe 'Slipdf' do
       #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
 
       expect(
-        js "return Slipdf.prepare(#{src});"
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 'x' => '=', 'c' => 'user.name' },
@@ -72,12 +76,15 @@ describe 'Slipdf' do
 
     it 'creates a template (with eol code)' do
 
-      expect(js %q{
-        var s =
-          'document\n' +
-          '  orientation= user.name\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        document
+          orientation= user.name
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
               { 'x' => '=', 'c' => 'user.name' }
@@ -88,12 +95,15 @@ describe 'Slipdf' do
 
     it 'creates a template (with eol text)' do
 
-      expect(js %q{
-        var s =
-          'document\n' +
-          '  orientation landscape\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        document
+          orientation landscape
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
               { 's' => ' landscape' }
@@ -112,7 +122,7 @@ describe 'Slipdf' do
       #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
-        js "return Slipdf.prepare(#{src});"
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'doc', 'cn' => [
             { 't' => 'x', 'cn' => [
@@ -129,13 +139,16 @@ describe 'Slipdf' do
 
     it 'creates a template (with loop)' do
 
-      expect(js %q{
-        var s =
-          'doc\n' +
-          '  - user.children.forEach(function(c) \{\n' +
-          '    name= c.name\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        doc
+          - user.children.forEach(function(c) \{
+            name= c.name
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
         { 't' => 'doc', 'cn' => [
           { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
             { 't' => 'name', 'cn' => [
@@ -152,7 +165,7 @@ describe 'Slipdf' do
       #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
-        js "return Slipdf.prepare(#{src});"
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
@@ -171,7 +184,7 @@ describe 'Slipdf' do
       #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
-        js "return Slipdf.prepare(#{src});"
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
@@ -193,7 +206,7 @@ describe 'Slipdf' do
       #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
-        js "return Slipdf.prepare(#{src});"
+        js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
