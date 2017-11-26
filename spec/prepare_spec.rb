@@ -33,13 +33,6 @@ describe 'Slipdf' do
 
     it 'creates a template (with strings)' do
 
-      #print_tree js(%q{
-      #  var s =
-      #    'document\n' +
-      #    '  footer\n' +
-      #    '    | fun stuff\n';
-      #  return Slipdf.debug(s, 3);
-      #})
       expect(js %q{
         var s =
           'document\n' +
@@ -57,14 +50,17 @@ describe 'Slipdf' do
 
     it 'creates a template (with code)' do
 
-      expect(js %q{
-        var s =
-          'document\n' +
-          '  = user.name\n' +
-          '  - user.items.forEach(function(i) \{\n' +
-          '    = i.count\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        document
+          = user.name
+          - user.items.forEach(function(i) \{
+            = i.count
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
+
+      expect(
+        js "return Slipdf.prepare(#{src});"
+      ).to eq(
         { 't' => 'document', 'cn' => [
             { 'x' => '=', 'c' => 'user.name' },
             { 'x' => '-', 'c' => 'user.items.forEach(function(i) {', 'cn' => [
@@ -76,12 +72,6 @@ describe 'Slipdf' do
 
     it 'creates a template (with eol code)' do
 
-      #print_tree js(%q{
-      #  var s =
-      #    'document\n' +
-      #    '  orientation= user.name\n';
-      #  return Slipdf.debug(s, 3);
-      #})
       expect(js %q{
         var s =
           'document\n' +
@@ -114,20 +104,16 @@ describe 'Slipdf' do
 
     it 'creates a template (with hash bracket)' do
 
-      #print_tree js(%q{
-      #  var s =
-      #    'doc\n' +
-      #    '  x user: #{user.login} id: #{user.id}\n' +
-      #    '    | name: #{user.name}\n';
-      #  return Slipdf.debug(s, 3);
-      #})
-      expect(js %q{
-        var s =
-          'doc\n' +
-          '  x user: #{user.login} id: #{user.id}\n' +
-          '    | name: #{user.name}\n';
-        return Slipdf.prepare(s);
-      }).to eq(
+      src = %q{
+        doc
+          x user: #{user.login} id: #{user.id}
+            | name: #{user.name}
+      }.inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js "return Slipdf.prepare(#{src});"
+      ).to eq(
         { 't' => 'doc', 'cn' => [
             { 't' => 'x', 'cn' => [
               { 's' => ' user: ' },
