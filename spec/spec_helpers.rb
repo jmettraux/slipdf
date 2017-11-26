@@ -51,6 +51,12 @@ module Helpers
     rc = "[0;0m" # reset color
     rdc = "[1;31m" # red color
 
+    if indent == ''
+      n['input']['string']
+        .split("\n")
+        .each { |l| puts "#{tc}  │#{sc1}#{l}#{rc}" }
+    end
+
     o, l = n['offset'], n['length']
     s = n['input']['string'][o..-1]
     r = n['result'].to_s; r = "#{c1}#{r}#{tc}" if r == '1'
