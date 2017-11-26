@@ -18,14 +18,10 @@ describe 'Slipdf' do
 
         i = slim.match(/\d+/)[0].to_i
 
-        sli =
-          File.basename(slim)
-        src =
-          File.read(slim).inspect
-        ctx = JSON.dump(
-          eval(File.read("spec/t_#{i}_ctx.rb")))
-        res =
-          eval(File.read("spec/t_#{i}.rb"))
+        sli = File.basename(slim)
+        src = File.read(slim).inspect
+        ctx = JSON.dump(eval(File.read("spec/t_#{i}_ctx.rb")))
+        res = eval(File.read("spec/t_#{i}.rb"))
 
         it "generates a pdfmake document for #{sli}" do
 
