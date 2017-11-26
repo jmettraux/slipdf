@@ -156,50 +156,24 @@ describe 'Slipdf' do
               { 'x' => '=', 'c' => 'c.name' } ] } ] } ] }
       )
     end
-  end
 
-  describe '.compile' do
-
-    it 'returns a template function' do
-
-      expect(js %q{
-        var s =
-          'doc\n' +
-          '  - user.children.forEach(function(c) \{\n' +
-          '    name= c.name\n';
-        return (typeof Slipdf.compile(s));
-      }).to eq(
-        'function'
-      )
-    end
-  end
-
-  describe 'template' do
-
-    describe '()' do
-
-      Dir['spec/t_*.slim'].each do |slim|
-
-        i = slim.match(/\d+/)[0].to_i
-
-        sli =
-          File.basename(slim)
-        src =
-          File.read(slim).inspect
-        ctx = JSON.dump(
-          eval(File.read("spec/t_#{i}_ctx.rb")))
-        res =
-          eval(File.read("spec/t_#{i}.rb"))
-
-        it "generates a pdfmake document for #{sli}" do
-
-          #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
-          pp(js "var src = #{src}; return Slipdf.prepare(src);")
-
-          expect(js("return Slipdf.compile(#{src})(#{ctx});")).to eq(res)
-        end
-      end
-    end
+#    it 'creates a template (with plain attributes)' do
+#
+#      expect(
+#        js %q{
+#          var s =
+#            'document\n' +
+#            '  tag att0="val0"\n';
+#          return Slipdf.prepare(s);
+#        }
+#      ).to eq(
+#        { 't' => 'document', 'cn' => [
+#            { 't' => 'footer', 'cn' => [
+#              { 't' => 'image', 'cs' => %w[ logo ] }
+#            ] }
+#          ] }
+#      )
+#    end
   end
 end
 
