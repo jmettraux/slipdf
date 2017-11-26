@@ -163,7 +163,7 @@ describe 'Slipdf' do
         document
           tag att0="val0" att1="val1"
       }.inspect
-      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+      print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
         js "return Slipdf.prepare(#{src});"

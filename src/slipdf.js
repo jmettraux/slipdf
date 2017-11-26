@@ -21,10 +21,23 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function code(i) { return rex('code', i, /[^\n]+/); }
 
-  function name(i) { return rex('name', i, /[-_a-zA-Z0-9]+/); }
-  function value(i) { return rex('value', i, /\S+/); }
+  function attSqValue(i) {
+    return rex('attSqValue', i, /'(\\'|[^'])*'/); }
+  function attDqValue(i) {
+    return rex('attDqValue', i, /"(\\"|[^"])*"/); }
+  function attParenValue(i) {
+    return rex('attDqValue', i, /\((\\\)|[^)])*\)/); }
+  function attPlainValue(i) {
+    return rex('attPlainValue', i, /[^ \t]+/); }
 
-  function attribute(i) { return seq('att', i, space, name, equal, value); }
+  function attName(i) {
+    return rex('attName', i,
+      /[-_a-zA-Z0-9]+/); }
+  function attValue(i) {
+    return alt('attValue', i,
+      attSqValue, attDqValue, attParenValue, attPlainValue); }
+  function attribute(i) {
+    return seq('att', i, space, attName, equal, attValue); }
 
   function klass(i) { return rex('class', i, /\.[-_a-z]+/); }
   function tag(i) { return rex('tag', i, /[a-z][a-zA-Z0-9]*/); }
@@ -76,9 +89,9 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
     t.gather('att').forEach(function(c) {
       if ( ! o.as) o.as = [];
-      o.as.push([
-        c.lookup('name').string().trim(),
-        c.lookup('value').string().trim() ]);
+      var n = c.lookup('attName').string().trim();
+      var v = c.lookup('attValue').sublookup(null).string().trim();
+      o.as.push([ n, v ]);
     });
 
     var tex = t.lookup('text');
