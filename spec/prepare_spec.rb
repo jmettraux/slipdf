@@ -163,7 +163,7 @@ describe 'Slipdf' do
         document
           tag att0="val0" att1="val1"
       }.inspect
-      print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
 
       expect(
         js "return Slipdf.prepare(#{src});"
@@ -171,6 +171,28 @@ describe 'Slipdf' do
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
               [ 'att0', '"val0"' ], [ 'att1', '"val1"' ]
+            ] }
+          ] }
+      )
+    end
+
+    it 'creates a template (with parenthesis attributes)' do
+
+      src = %q{
+        document
+          tag att0=(val0) att1=([val1](nada)) att2=[ 1, 2, 3 ] att3={a:'b'}
+      }.inspect
+      print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+
+      expect(
+        js "return Slipdf.prepare(#{src});"
+      ).to eq(
+        { 't' => 'document', 'cn' => [
+            { 't' => 'tag', 'as' => [
+              [ 'att0', '(val0)' ],
+              [ 'att1', '([val1](nada))' ],
+              [ 'att2', '[ 1, 2, 3 ]' ],
+              [ 'att3', "{a:'b'}" ]
             ] }
           ] }
       )

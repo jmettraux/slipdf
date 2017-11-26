@@ -10,6 +10,19 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
   function dashOrEqual(i) { return rex('doe', i, /[-=]\s*/); }
 
+  function parSta(i) { return str(null, i, '('); }
+  function parEnd(i) { return str(null, i, ')'); }
+  function sbrSta(i) { return str(null, i, '['); }
+  function sbrEnd(i) { return str(null, i, ']'); }
+  function braSta(i) { return str(null, i, '{'); }
+  function braEnd(i) { return str(null, i, '}'); }
+  function noBra(i) { return rex(null, i, /[^[\](){}\n]+/); }
+
+  function braElt(i) { return alt(null, i, par, sbr, bra, noBra); }
+  function bra(i) { return seq(null, i, braSta, braElt, '*', braEnd); }
+  function sbr(i) { return seq(null, i, sbrSta, braElt, '*', sbrEnd); }
+  function par(i) { return seq(null, i, parSta, braElt, '*', parEnd); }
+
   function codeBracket(i) { return rex('code', i, /[^}]+/); }
   function endBracket(i) { return str(null, i, '}'); }
   function hashBracket(i) { return str(null, i, '#{'); }
@@ -21,21 +34,17 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function code(i) { return rex('code', i, /[^\n]+/); }
 
-  function attSqValue(i) {
-    return rex('attSqValue', i, /'(\\'|[^'])*'/); }
-  function attDqValue(i) {
-    return rex('attDqValue', i, /"(\\"|[^"])*"/); }
-  function attParenValue(i) {
-    return rex('attDqValue', i, /\((\\\)|[^)])*\)/); }
-  function attPlainValue(i) {
-    return rex('attPlainValue', i, /[^ \t]+/); }
+  function attPlainValue(i) { return rex('attPlainValue', i, /[^ \t]+/); }
+  function attDqValue(i) { return rex('attDqValue', i, /"(\\"|[^"])*"/); }
+  function attBraValue(i) { return alt('attBraValue', i, par, sbr, bra); }
+  function attSqValue(i) { return rex('attSqValue', i, /'(\\'|[^'])*'/); }
 
   function attName(i) {
     return rex('attName', i,
       /[-_a-zA-Z0-9]+/); }
   function attValue(i) {
     return alt('attValue', i,
-      attSqValue, attDqValue, attParenValue, attPlainValue); }
+      attSqValue, attDqValue, attBraValue, attPlainValue); }
   function attribute(i) {
     return seq('att', i, space, attName, equal, attValue); }
 
