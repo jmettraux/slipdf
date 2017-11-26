@@ -139,7 +139,7 @@ describe 'Slipdf' do
 
     it 'creates a template (with loop)' do
 
-      src = %q{
+      src = %{
         doc
           - user.children.forEach(function(c) \{
             name= c.name
@@ -169,7 +169,8 @@ describe 'Slipdf' do
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
-              [ 'att0', '"val0"' ], [ 'att1', '"val1"' ]
+              [ 'att0', [ { 's' => 'val0' } ] ],
+              [ 'att1', [ { 's' => 'val1' } ] ]
             ] }
           ] }
       )
@@ -188,10 +189,10 @@ describe 'Slipdf' do
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
-              [ 'att0', '(val0)' ],
-              [ 'att1', '([val1](nada))' ],
-              [ 'att2', '[ 1, 2, 3 ]' ],
-              [ 'att3', "{a:'b'}" ]
+              [ 'att0', [  { 'x' => '=', 'c' => '(val0)' } ] ],
+              [ 'att1', [  { 'x' => '=', 'c' => '([val1](nada))' } ] ],
+              [ 'att2', [  { 'x' => '=', 'c' => '[ 1, 2, 3 ]' } ] ],
+              [ 'att3', [  { 'x' => '=', 'c' => "{a:'b'}" } ] ]
             ] }
           ] }
       )
@@ -199,18 +200,22 @@ describe 'Slipdf' do
 
     it 'creates a template (with double quoted attributes)' do
 
-      src = %q{
+      src = %q(
         document
           tag att0="abc#{def["x"]}nada"
-      }.inspect
-      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 2);")
+      ).inspect
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
 
       expect(
         js("return Slipdf.prepare(#{src});")
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'tag', 'as' => [
-              [ 'att0', '"abc#{def["x"]}nada"' ],
+              [ 'att0', [
+                { 's' => 'abc' },
+                { 'x' => '=', 'c' => 'def["x"]' },
+                { 's' => 'nada' }
+              ] ]
             ] }
           ] }
       )
