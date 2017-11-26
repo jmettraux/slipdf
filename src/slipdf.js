@@ -130,6 +130,8 @@ var Slipdf = (function() {
 
   var VERSION = '1.0.0';
 
+  var dataUrls = {};
+
   // protected
 
   var lookup = function(tree, tags) {
@@ -142,6 +144,24 @@ var Slipdf = (function() {
       var r = lookup(tree.cn[i], tags); if (r) return r;
     }
     return null;
+  };
+
+  //var gather = function(tree, tags) {
+  var gather = function(tree, tags, skip, acc) {
+
+    acc = acc || [];
+
+    if ((typeof tags) === 'string') tags = [ tags ];
+    else if (tags === undefined) tags = null;
+
+    if ( ! skip && ((tags && tags.includes(tree.t)) || ( ! tags && tree.t))) {
+      acc.push(tree);
+    }
+    else if (tree.cn) {
+      tree.cn.forEach(function(c) { gather(c, tags, false, acc); });
+    }
+
+    return acc;
   };
 
   var do_eval = function(context, code) {
@@ -173,6 +193,12 @@ var Slipdf = (function() {
         if (c.s) return s + c.s;
         return s + apply_value_code(c, context); },
       '')
+  };
+
+  var apply_value_trim = function(tree, context) {
+
+    var v = apply_value(tree, context);
+    return ((typeof v) === 'string') ? v.trim() : v;
   };
 
   var apply_text = function(tree, context) {
@@ -244,20 +270,48 @@ var Slipdf = (function() {
         []);
   };
 
+  var loadDataUrl = function(key, path) {
+
+    if (dataUrls[key]) { return; }
+    if ((typeof Image) === "undefined") { dataUrls[key] = path; return; }
+
+    var img = new Image();
+    img.onload =
+      function() {
+        var can = document.createElement('canvas');
+        can.width = this.naturalWidth;
+        can.height = this.naturalHeight;
+        can.getContext('2d').drawImage(this, 0, 0);
+        dataUrls[key] = can.toDataURL('image/png');
+      };
+    img.src = path;
+  };
+
+  var loadDataUrls = function(tree, context) {
+
+    gather(tree, null, true)
+      .forEach(function(t) { loadDataUrl(t.t, apply_value(t, context)); });
+  };
+
   var apply_document = function(tree, context) {
 
     if (tree.t !== 'document') throw new Error('Root is not a "document"');
 
     var doc = {};
 
+    // document "properties"
+
     [ 'pageSize', 'pageOrientation', 'pageMargins' ].forEach(function(k) {
       var t = lookup(tree, k);
-      if (t) {
-        var v = apply_value(t, context);
-        if ((typeof v) === 'string') v = v.trim();
-        doc[k] = v;
-      }
+      if (t) doc[k] = apply_value_trim(t, context);
     });
+
+    // dataUrls
+
+    var du = lookup(tree, 'dataUrls');
+    if (du) loadDataUrls(du, context);
+
+    // content
 
     var content = lookup(tree, [ 'content', 'body' ]);
 
@@ -267,6 +321,8 @@ var Slipdf = (function() {
     doc.content =
       apply_content(content, context)
         .filter(function(c) { return c !== null; });
+
+    // done, return document object
 
     return doc;
   };
@@ -309,7 +365,10 @@ var Slipdf = (function() {
   this.compile = function(s) {
 
     var tree = self.prepare(s);
-    return function(context) { return apply_document(tree, context); };
+
+    return function(context) {
+      context.dataUrls = dataUrls;
+      return apply_document(tree, context); };
   };
 
   // done.
