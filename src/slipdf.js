@@ -324,6 +324,8 @@ var Slipdf = (function() {
         var fun; if (c.t) fun = 'apply_' + c.t;
         else if (c.x === '=') fun = 'apply_equal';
         else if (c.x === '-') fun = 'apply_dash';
+        else throw new Error(
+          'apply_content() cannot make sense of ' + JSON.stringify(c));
         //
         return eval(fun)(c, context); })
       .reduce(
@@ -340,21 +342,19 @@ var Slipdf = (function() {
     var a = tree.as.find(function(kv) { return kv[0] === key; });
     if ( ! a) return null;
 
-    return apply_content({ cn: a[1] }, context);
+    //return apply_content({ cn: a[1] }, context);
+    return apply_value({ cn: a[1] }, context);
   };
 
   var getStringAtt = function(tree, context, key, joiner) {
 
     joiner = joiner || '';
 
-    var a = getAtt(tree, context, key); if ( ! a) return null;
+    var a = getAtt(tree, context, key);
+    if ( ! a) return null;
+    if ( ! Array.isArray(a)) a = [ a ];
 
     return a.map(function(e) { return e.toString(); }).join(joiner);
-  };
-
-  var getAttSingle = function(tree, context, key) {
-
-    var a = getAtt(tree, context, key); return a ? a[0] : null;
   };
 
   var apply_img = function(tree, context) {
@@ -366,7 +366,7 @@ var Slipdf = (function() {
     tree.as.forEach(function(kv) {
       var k = kv[0]; var v = kv[1];
       if (k === 'src') return;
-      r[k] = getAttSingle(tree, context, k); });
+      r[k] = getAtt(tree, context, k); });
 
     return r;
   };
@@ -394,6 +394,12 @@ var Slipdf = (function() {
       .forEach(function(t) { loadDataUrl(t.t, apply_value(t, context)); });
   };
 
+  var getChildValue = function(tree, context, childTag) {
+
+    var t = lookup(tree, childTag);
+    return t ? apply_value_trim(t, context) : null;
+  };
+
   var apply_document = function(tree, context) {
 
     if (tree.t !== 'document') throw new Error('Root is not a "document"');
@@ -403,8 +409,8 @@ var Slipdf = (function() {
     // document "properties"
 
     [ 'pageSize', 'pageOrientation', 'pageMargins' ].forEach(function(k) {
-      var t = lookup(tree, k);
-      if (t) doc[k] = apply_value_trim(t, context);
+      var v = getAtt(tree, context, k) || getChildValue(tree, context, k);
+      if (v) doc[k] = v;
     });
 
     // dataUrls
