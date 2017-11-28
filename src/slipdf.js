@@ -195,6 +195,8 @@ var Slipdf = (function() {
 
   // protected
 
+  var debugOn = function() { return (typeof DEBUG) !== 'undefined' };
+
   var pushAll = function(targetArray, src) {
 
     if (Array.isArray(src)) src.forEach(function(e) { targetArray.push(e); });
@@ -451,6 +453,25 @@ var Slipdf = (function() {
     return t ? apply_value_trim(t, context) : null;
   };
 
+  var apply_footer_function = function(tree, context, pk, tpk) {
+
+    var f = function(p, tp) {
+
+      var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+      ctx[pk] = p;
+      ctx[tpk] = tp;
+
+      return apply_content(tree.cn[0], ctx);
+    };
+    if (debugOn) {
+      f.toJSON = function() {
+        return 'footer function jlen' + JSON.stringify(tree.cn[0]).length;
+      }
+    }
+
+    return f;
+  };
+
   var apply_document = function(tree, context) {
 
     if (tree.t !== 'document') throw new Error('Root is not a "document"');
@@ -468,6 +489,27 @@ var Slipdf = (function() {
 
     var du = lookup(tree, 'dataUrls');
     if (du) loadDataUrls(du, context);
+
+    // header
+
+    // TODO
+
+    // footer
+
+    var footer = lookup(tree, 'footer');
+      //
+    if (footer && footer.cn && footer.cn[0]) {
+
+      var c0 =
+        footer.cn[0];
+      var m = ((c0.x === '=' && c0.c) || '')
+        .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/)
+
+      doc.footer =
+        m ?
+        apply_footer_function(c0, context, m[1], m[2]) :
+        apply_content(c0, context);
+    }
 
     // content
 
