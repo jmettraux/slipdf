@@ -249,6 +249,69 @@ var Slipdf = (function() {
     return func.apply(null, args);
   };
 
+  var getAtt = function(tree, context, key) {
+
+    if ( ! tree.as) return null;
+
+    var a = tree.as.find(function(kv) { return kv[0] === key; });
+    if ( ! a) return null;
+
+    //return apply_content({ cn: a[1] }, context);
+    return apply_value({ cn: a[1] }, context);
+  };
+
+  var getStringAtt = function(tree, context, key, joiner) {
+
+    joiner = joiner || '';
+
+    var a = getAtt(tree, context, key);
+    if ( ! a) return null;
+    if ( ! Array.isArray(a)) a = [ a ];
+
+    return a.map(function(e) { return e.toString(); }).join(joiner);
+  };
+
+  var setAtts = function(tree, context, result, whiteList, blackList) {
+
+    if ( ! tree.as) return;
+
+    tree.as.forEach(function(kv) {
+      var k = kv[0];
+      if (blackList && blackList.includes(k)) return;
+      if (whiteList && ! whiteList.includes(k)) return;
+      var v = kv[1];
+      result[k] = getAtt(tree, context, k); });
+  };
+
+  var loadDataUrl = function(key, path) {
+
+    if (dataUrls[key]) { return; }
+    if ((typeof Image) === "undefined") { dataUrls[key] = path; return; }
+
+    var img = new Image();
+    img.onload =
+      function() {
+        var can = document.createElement('canvas');
+        can.width = this.naturalWidth;
+        can.height = this.naturalHeight;
+        can.getContext('2d').drawImage(this, 0, 0);
+        dataUrls[key] = can.toDataURL('image/png');
+      };
+    img.src = path;
+  };
+
+  var loadDataUrls = function(tree, context) {
+
+    gather(tree, null, true)
+      .forEach(function(t) { loadDataUrl(t.t, apply_value(t, context)); });
+  };
+
+  var getChildValue = function(tree, context, childTag) {
+
+    var t = lookup(tree, childTag);
+    return t ? apply_value_trim(t, context) : null;
+  };
+
   var apply_value_code = function(tree, context) {
 
     return do_eval(context, tree.c);
@@ -343,40 +406,6 @@ var Slipdf = (function() {
         []);
   };
 
-  var getAtt = function(tree, context, key) {
-
-    if ( ! tree.as) return null;
-
-    var a = tree.as.find(function(kv) { return kv[0] === key; });
-    if ( ! a) return null;
-
-    //return apply_content({ cn: a[1] }, context);
-    return apply_value({ cn: a[1] }, context);
-  };
-
-  var getStringAtt = function(tree, context, key, joiner) {
-
-    joiner = joiner || '';
-
-    var a = getAtt(tree, context, key);
-    if ( ! a) return null;
-    if ( ! Array.isArray(a)) a = [ a ];
-
-    return a.map(function(e) { return e.toString(); }).join(joiner);
-  };
-
-  var setAtts = function(tree, context, result, whiteList, blackList) {
-
-    if ( ! tree.as) return;
-
-    tree.as.forEach(function(kv) {
-      var k = kv[0];
-      if (blackList && blackList.includes(k)) return;
-      if (whiteList && ! whiteList.includes(k)) return;
-      var v = kv[1];
-      result[k] = getAtt(tree, context, k); });
-  };
-
   var apply_img = function(tree, context) {
 
     var r = {};
@@ -422,35 +451,6 @@ var Slipdf = (function() {
       .map(function(tr) { return apply_tr(tr, context); });
 
     return r;
-  };
-
-  var loadDataUrl = function(key, path) {
-
-    if (dataUrls[key]) { return; }
-    if ((typeof Image) === "undefined") { dataUrls[key] = path; return; }
-
-    var img = new Image();
-    img.onload =
-      function() {
-        var can = document.createElement('canvas');
-        can.width = this.naturalWidth;
-        can.height = this.naturalHeight;
-        can.getContext('2d').drawImage(this, 0, 0);
-        dataUrls[key] = can.toDataURL('image/png');
-      };
-    img.src = path;
-  };
-
-  var loadDataUrls = function(tree, context) {
-
-    gather(tree, null, true)
-      .forEach(function(t) { loadDataUrl(t.t, apply_value(t, context)); });
-  };
-
-  var getChildValue = function(tree, context, childTag) {
-
-    var t = lookup(tree, childTag);
-    return t ? apply_value_trim(t, context) : null;
   };
 
   var apply_footer_function = function(tree, context, pk, tpk) {
