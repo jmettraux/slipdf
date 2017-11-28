@@ -114,6 +114,12 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return { x: '=', c: t.string().trim() };
   }
 
+  function rewrite_attSqValue(t) {
+
+    var s = t.string().slice(1); s = s.substr(0, s.length - 1);
+    return { s: s };
+  }
+
   function rewrite_attDqValue(t) {
 
     return t.subgather().map(rewrite);

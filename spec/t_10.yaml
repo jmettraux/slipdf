@@ -1,0 +1,9 @@
+---
+pageSize: A4
+pageOrientation: landscape
+pageMargins: [ 7, 35, 7, 91 ]
+defaultStyle:
+  font: HelveticaNeue
+content:
+  - text: This is template 10
+

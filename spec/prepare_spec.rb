@@ -232,7 +232,7 @@ describe 'Slipdf' do
             tag[ a =
               b ]
       ).inspect
-      print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
+      #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
 
       expect(
         js("return Slipdf.prepare(#{src});")
