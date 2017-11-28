@@ -480,10 +480,11 @@ var Slipdf = (function() {
 
     // document "properties"
 
-    [ 'pageSize', 'pageOrientation', 'pageMargins' ].forEach(function(k) {
-      var v = getAtt(tree, context, k) || getChildValue(tree, context, k);
-      if (v) doc[k] = v;
-    });
+    'pageSize pageOrientation pageMargins defaultStyle'
+      .split(' ')
+      .forEach(function(k) {
+        var v = getAtt(tree, context, k) || getChildValue(tree, context, k);
+        if (v) doc[k] = v; });
 
     // dataUrls
 
