@@ -8,6 +8,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function pipe(i) { return rex(null, i, /\|[ \t]*/); }
   function space(i) { return rex('space', i, /[ \t]+/); }
   function spacestar(i) { return rex('space', i, /[ \t]*/); }
+  function wsStar(i) { return rex(null, i, /\s*/); }
+  function wsEqual(i) { return rex(null, i, /\s*=\s*/); }
   function doe(i) { return rex('doe', i, /[-=]\s*/); }
 
   function parSta(i) { return str(null, i, '('); }
@@ -51,9 +53,29 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function attValue(i) {
     return alt('attValue', i,
       attSqValue, attDqValue, attBraValue, attPlainValue); }
-  function attribute(i) {
-    return seq('att', i,
-      space, attName, equal, attValue); }
+
+  function att(i) { return seq('att', i, space, attName, equal, attValue); }
+  function psbAtt(i) { return seq('att', i, attName, wsEqual, attValue); }
+
+  function sParSta(i) { return rex(null, i, /\(\s*/); }
+  function sParEnd(i) { return rex(null, i, /\s*\)/); }
+  function sSbrSta(i) { return rex(null, i, /\[\s*/); }
+  function sSbrEnd(i) { return rex(null, i, /\s*\]/); }
+  function sBraSta(i) { return rex(null, i, /\{\s*/); }
+  function sBraEnd(i) { return rex(null, i, /\s*\}/); }
+
+//function eseq(name, input, startpa, eltpa, seppa, endpa)
+  function atts(i) { return rep(null, i, att, 1); }
+  function parAtts(i) {
+    return eseq(null, i, sParSta, psbAtt, wsStar, sParEnd); }
+  function sbrAtts(i) {
+    return eseq(null, i, sSbrSta, psbAtt, wsStar, sSbrEnd); }
+  function braAtts(i) {
+    return eseq(null, i, sBraSta, psbAtt, wsStar, sBraEnd); }
+
+  function attributes(i) {
+    return alt(null, i,
+      parAtts, sbrAtts, braAtts, atts); }
 
   function klass(i) { return rex('class', i, /\.[-_a-z]+/); }
   function tag(i) { return rex('tag', i, /[a-z][a-zA-Z0-9]*/); }
@@ -68,7 +90,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function plainLine(i) {
     return seq('pline', i,
-      spacestar, head, attribute, '*', plainTail, '?', eol); }
+      spacestar, head, attributes, '?', plainTail, '?', eol); }
 
   function blankLine(i) { return rex(null, i, /([ \t]*\n+|[ \t]+$)/); }
   function commentLine(i) { return rex(null, i, /[ \t]*\/[^\n]*\n+/); }

@@ -220,6 +220,35 @@ describe 'Slipdf' do
           ] }
       )
     end
+
+    it 'creates a template (with bracketed attributes)' do
+
+      src = %q(
+        document(pageSize="A4")
+          tag(
+            x=y
+            y=z
+          )
+            tag[ a =
+              b ]
+      ).inspect
+      print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
+        { 't' => 'document',
+          'as' => [
+            [ 'pageSize', [ { 's' => 'A4' } ] ] ],
+          'cn' => [
+            { 't' => 'tag',
+              'as' => [
+                [ 'x', [ { 's' => 'y' } ] ], [ 'y', [ { 's' => 'z' } ] ] ],
+              'cn' => [
+                { 't' => 'tag',
+                  'as' => [ [ 'a', [  { 's' => 'b' } ] ] ] } ] } ] }
+      )
+    end
   end
 end
 
