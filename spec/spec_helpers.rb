@@ -6,6 +6,7 @@
 #
 
 require 'pp'
+require 'yaml'
 #require 'selenium-webdriver'
 require 'io/console'
 require 'execjs'

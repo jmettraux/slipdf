@@ -18,15 +18,25 @@ describe 'Slipdf' do
 
         i = slim.match(/\d+/)[0].to_i
 
-        sli = File.basename(slim)
-        src = File.read(slim).inspect
-        ctx = JSON.dump(eval(File.read("spec/t_#{i}_ctx.rb")))
-        res = eval(File.read("spec/t_#{i}.rb"))
+        sli =
+          File.basename(slim)
+        src =
+          File.read(slim).inspect
+        ctx =
+          JSON.dump(
+            File.exist?("spec/t_#{i}_ctx.yaml") ?
+            YAML.load(File.read("spec/t_#{i}_ctx.yaml")) :
+            eval(File.read("spec/t_#{i}_ctx.rb")))
+        res =
+          File.exist?("spec/t_#{i}.yaml") ?
+          YAML.load(File.read("spec/t_#{i}.yaml")) :
+          eval(File.read("spec/t_#{i}.rb"))
 
         it "generates a pdfmake document for #{sli}" do
 
           #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
-          pp(js "var src = #{src}; return Slipdf.prepare(src);")
+          puts '-' * 80; pp(js "return Slipdf.prepare(#{src});")
+          puts '-' * 80; pp(js "return Slipdf.compile(#{src})(#{ctx});")
 
           expect(js("return Slipdf.compile(#{src})(#{ctx});")).to eq(res)
         end
