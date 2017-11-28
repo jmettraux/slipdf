@@ -195,6 +195,14 @@ var Slipdf = (function() {
 
   // protected
 
+  var pushAll = function(targetArray, src) {
+
+    if (Array.isArray(src)) src.forEach(function(e) { targetArray.push(e); });
+    else targetArray.push(src);
+
+    return targetArray;
+  };
+
   var lookup = function(tree, tags) {
 
     if ((typeof tags) === 'string') tags = [ tags ];
@@ -279,8 +287,7 @@ var Slipdf = (function() {
     var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
     ctx.__fun = function(args) {
       as.forEach(function(a, i) { ctx[a] = args[i]; });
-      apply_content(tree, ctx).forEach(function(c) { rs.push(c) });
-    };
+      pushAll(rs, apply_content(tree, ctx)); };
     do_eval(
       ctx, tree.c + ' return __fun(arguments); })');
 
@@ -293,8 +300,7 @@ var Slipdf = (function() {
 
     var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
     ctx.__fun = function() {
-      apply_content(tree, ctx).forEach(function(c) { rs.push(c) });
-    };
+      pushAll(rs, apply_content(tree, ctx)); };
     do_eval(
       ctx, tree.c + ' context.' + m[1] + ' = ' + m[1] +';' + ' __fun(); }');
 
@@ -357,16 +363,61 @@ var Slipdf = (function() {
     return a.map(function(e) { return e.toString(); }).join(joiner);
   };
 
+  var setAtts = function(tree, context, result, whiteList, blackList) {
+
+    if ( ! tree.as) return;
+
+    tree.as.forEach(function(kv) {
+      var k = kv[0];
+      if (blackList && blackList.includes(k)) return;
+      if (whiteList && ! whiteList.includes(k)) return;
+      var v = kv[1];
+      result[k] = getAtt(tree, context, k); });
+  };
+
   var apply_img = function(tree, context) {
 
     var r = {};
     r.image = getStringAtt(tree, context, 'src');
     r.style = tree.cs;
+    setAtts(tree, context, r, null, [ 'src' ]);
 
-    tree.as.forEach(function(kv) {
-      var k = kv[0]; var v = kv[1];
-      if (k === 'src') return;
-      r[k] = getAtt(tree, context, k); });
+    return r;
+  };
+
+  var apply_td = function(tree, context) {
+
+    var r = apply_content(tree, context);
+
+    var cs = getAtt(tree, context, 'colspan');
+    if (cs && r[0]) r[0].colSpan = cs;
+
+    var rs = getAtt(tree, context, 'rowspan');
+    if (rs && r[0]) r[0].rowSpan = rs;
+
+    return r;
+  };
+
+  var apply_tr = function(tree, context) {
+
+    return gather(tree, 'td')
+      .reduce(
+        function(a, td) { return pushAll(a, apply_td(td, context)); },
+        [])
+  };
+
+  var apply_table = function(tree, context) {
+
+    var table = {};
+    var r = { table: table };
+
+    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
+
+    setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
+    setAtts(tree, context, table, tableAtts, null); // wl / bl
+
+    table.body = gather(tree, 'tr')
+      .map(function(tr) { return apply_tr(tr, context); });
 
     return r;
   };

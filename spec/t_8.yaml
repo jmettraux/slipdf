@@ -1,0 +1,15 @@
+---
+pageSize: A4
+content:
+  - text: This is template 8
+  - table:
+      widths: [ '*', 'auto' ]
+      body:
+        - - text: 'Row 0, Cell 0'
+          - image: 'Row0Cell1'
+            style: [ 'logo' ]
+        - - text: 'Row 1, Cell 0 and 1'
+            colSpan: 2
+    layout: false
+    margin: [ 7, 0 ]
+

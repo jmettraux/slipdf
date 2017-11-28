@@ -1,0 +1,19 @@
+
+document pageSize="A4"
+
+  header
+  footer
+
+  content
+    p This is template #{template}
+    table widths=[ '*', 'auto' ] layout={ defaultBorder: false } margin=[ 7, 0 ]
+      tbody
+        tr
+          td
+            p.source Row 0, Cell 0
+          td
+            img.logo src="Row0Cell1"
+        tr
+          td colspan=(2)
+            p.banner Row 1, Cell 0 and 1
+
