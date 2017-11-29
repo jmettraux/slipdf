@@ -6,6 +6,9 @@
     { 'text' => 'This is template 6' },
     { 'image' => '/images/gecbl/darts.png',
       'style' => [ 'footer', 'logo' ],
-      'width' => 91 }
+      'width' => 91 },
+    { 'image' => '/images/gecbl/darts.png',
+      'style' => [ 'footer', 'logo' ],
+      'width' => '92' }
   ]
 }
