@@ -6,9 +6,11 @@ content:
       widths: [ '*', 'auto' ]
       body:
         - - text: 'Row 0, Cell 0'
+            style: [ 'source' ]
           - image: 'Row0Cell1'
             style: [ 'logo' ]
         - - text: 'Row 1, Cell 0 and 1'
+            style: [ 'banner' ]
             colSpan: 2
     layout: { defaultBorder: false }
     margin: [ 7, 0 ]

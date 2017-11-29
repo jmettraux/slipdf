@@ -325,29 +325,6 @@ var Slipdf = (function() {
     });
   };
 
-  var loadDataUrl = function(key, path) {
-
-    if (dataUrls[key]) { return; }
-    if ((typeof Image) === "undefined") { dataUrls[key] = path; return; }
-
-    var img = new Image();
-    img.onload =
-      function() {
-        var can = document.createElement('canvas');
-        can.width = this.naturalWidth;
-        can.height = this.naturalHeight;
-        can.getContext('2d').drawImage(this, 0, 0);
-        dataUrls[key] = can.toDataURL('image/png');
-      };
-    img.src = path;
-  };
-
-  var loadDataUrls = function(tree, context) {
-
-    gather(tree, null, true)
-      .forEach(function(t) { loadDataUrl(t.t, apply_value(t, context)); });
-  };
-
   var getChildValue = function(tree, context, childTag) {
 
     var t = lookup(tree, childTag);
@@ -389,10 +366,14 @@ var Slipdf = (function() {
 
   var apply_text = function(tree, context) {
 
-    var t = apply_value(tree, context);
-    if (t) t = t.toString().trim();
+    var r = { text: '', style: tree.cs };
 
-    return { text: t };
+    var t = tree.cn ? apply_value(tree, context) : null;
+    if (t) r.text = t.toString().trim();
+
+    setAtts(tree, context, r);
+
+    return r;
   };
   var apply_p = apply_text;
 
@@ -543,11 +524,6 @@ var Slipdf = (function() {
     var co = lookup(tree, [ 'colours', 'colors' ]);
     if (co) addColours(co, context);
 
-    // dataUrls
-
-    var du = lookup(tree, 'dataUrls');
-    if (du) loadDataUrls(du, context);
-
     // styles
 
     var st = lookup(tree, 'styles');
@@ -592,6 +568,22 @@ var Slipdf = (function() {
   };
 
   // public
+
+  this.addDataUrl = function(key, uri) {
+
+    if ((typeof Image) === "undefined") { dataUrls[key] = uri; return; }
+
+    var img = new Image();
+    img.onload =
+      function() {
+        var can = document.createElement('canvas');
+        can.width = this.naturalWidth;
+        can.height = this.naturalHeight;
+        can.getContext('2d').drawImage(this, 0, 0);
+        dataUrls[key] = can.toDataURL('image/png');
+      };
+    img.src = uri; // which triggers the loading
+  };
 
   this.debug = function(s, debugLevel) {
 

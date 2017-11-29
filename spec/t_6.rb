@@ -4,11 +4,13 @@
   'pageMargins' => [ 7, 35, 7, 91 ],
   'content' => [
     { 'text' => 'This is template 6' },
-    { 'image' => '/images/gecbl/darts.png',
+    { 'text' => 'Crime and Punishment',
       'style' => [ 'footer', 'logo' ],
+      'data-x' => 5,
       'width' => 91 },
-    { 'image' => '/images/gecbl/darts.png',
+    { 'text' => 'The Idiot',
       'style' => [ 'footer', 'logo' ],
+      'data-y' => 12,
       'width' => '92' }
   ]
 }
