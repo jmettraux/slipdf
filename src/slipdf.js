@@ -220,6 +220,7 @@ var Slipdf = (function() {
   var VERSION = '1.0.0';
 
   var dataUrls = {};
+  var colours = {};
 
   // protected
 
@@ -309,6 +310,13 @@ var Slipdf = (function() {
       if (whiteList && ! whiteList.includes(k)) return;
       var v = kv[1];
       result[k] = getAtt(tree, context, k); });
+  };
+
+  var addColours = function(tree, context) {
+
+    tree.cn.forEach(function(c) {
+      colours[c.t] = apply_value_trim(c, context);
+    });
   };
 
   var loadDataUrl = function(key, path) {
@@ -514,6 +522,11 @@ var Slipdf = (function() {
         var v = getAtt(tree, context, k) || getChildValue(tree, context, k);
         if (v) doc[k] = v; });
 
+    // colours
+
+    var co = lookup(tree, [ 'colours', 'colors' ]);
+    if (co) addColours(co, context);
+
     // dataUrls
 
     var du = lookup(tree, 'dataUrls');
@@ -598,6 +611,8 @@ var Slipdf = (function() {
     var tree = self.prepare(s);
 
     return function(context) {
+      context.colours = colours;
+      context.colors = colours;
       context.dataUrls = dataUrls;
       return apply_document(tree, context); };
   };
