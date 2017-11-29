@@ -266,6 +266,8 @@ var Slipdf = (function() {
 
   var do_eval = function(context, code) {
 
+    code = '(' + code + ')';
+
     var ks = Object.keys(context);
     if (ks.length < 1) ks.push('_');
 
@@ -346,6 +348,16 @@ var Slipdf = (function() {
 
     var t = lookup(tree, childTag);
     return t ? apply_value_trim(t, context) : null;
+  };
+
+  var getStyles = function(tree, context) {
+
+    return (tree.cn || [])
+      .reduce(
+        function(r, c) {
+          r[c.t] = getChildValue(tree, context, c.t);
+          return r; },
+        {});
   };
 
   var apply_value_code = function(tree, context) {
@@ -531,6 +543,12 @@ var Slipdf = (function() {
 
     var du = lookup(tree, 'dataUrls');
     if (du) loadDataUrls(du, context);
+
+    // styles
+
+    var st = lookup(tree, 'styles');
+    tree.cn = tree.cn.filter(function(t) { return t.t !== 'styles'; });
+    if (st) doc.styles = getStyles(st, context);
 
     // header
 
