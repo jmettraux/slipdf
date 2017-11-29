@@ -266,7 +266,11 @@ var Slipdf = (function() {
 
   var do_eval = function(context, code) {
 
-    code = '(' + code + ')';
+    if ( ! (
+      code.match(/\s*for/))
+    ) {
+      code = '(' + code + ')';
+    }
 
     var ks = Object.keys(context);
     if (ks.length < 1) ks.push('_');

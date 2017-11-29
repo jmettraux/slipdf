@@ -10,6 +10,6 @@ content:
             style: [ 'logo' ]
         - - text: 'Row 1, Cell 0 and 1'
             colSpan: 2
-    layout: false
+    layout: { defaultBorder: false }
     margin: [ 7, 0 ]
 

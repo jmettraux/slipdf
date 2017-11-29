@@ -2,6 +2,7 @@
 pageSize: A4
 pageOrientation: landscape
 pageMargins: [ 7, 35, 7, 91 ]
+styles: {}
 defaultStyle:
   font: HelveticaNeue
 content:
