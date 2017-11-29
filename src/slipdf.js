@@ -494,7 +494,7 @@ var Slipdf = (function() {
       ctx[pk] = p;
       ctx[tpk] = tp;
 
-      return apply_content(tree.cn[0], ctx);
+      return apply_content(tree, ctx);
     };
     if (debugOn) {
       f.toJSON = function() {
