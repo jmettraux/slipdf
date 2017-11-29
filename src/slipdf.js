@@ -475,7 +475,7 @@ var Slipdf = (function() {
     var table = {};
     var r = { table: table };
 
-    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
+    var tableAtts = [ 'widths', 'heights', 'headerRows', 'layout' ];
 
     setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
     setAtts(tree, context, table, tableAtts, null); // wl / bl
