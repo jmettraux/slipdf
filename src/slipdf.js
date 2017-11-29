@@ -628,6 +628,7 @@ var Slipdf = (function() {
       context.colours = colours;
       context.colors = colours;
       context.dataUrls = dataUrls;
+      context.ffalse = [ false, false, false, false ];
       return apply_document(tree, context); };
   };
 
