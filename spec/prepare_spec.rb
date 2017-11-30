@@ -156,6 +156,28 @@ describe 'Slipdf' do
       )
     end
 
+    it 'creates a template (with nested loop)' do
+
+      src = %{
+        doc
+          - user.children.forEach(function(c) \{
+            name= c.name
+            - [ 'a', 'b', 'c' ].forEach(function(k) \{
+              key= k
+      }.inspect
+      #puts '-' * 80; print_tree(js "return Slipdf.debug(#{src}, 2);")
+      puts '-' * 80; pp(js "return Slipdf.prepare(#{src});")
+
+      expect(
+        js("return Slipdf.prepare(#{src});")
+      ).to eq(
+        { 't' => 'doc', 'cn' => [
+          { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
+            { 't' => 'name', 'cn' => [
+              { 'x' => '=', 'c' => 'c.name' } ] } ] } ] }
+      )
+    end
+
     it 'creates a template (with plain attributes)' do
 
       src = %q{
