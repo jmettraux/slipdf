@@ -306,6 +306,12 @@ var Slipdf = (function() {
     return a.map(function(e) { return e.toString(); }).join(joiner);
   };
 
+  var setStyle = function(tree, result) {
+
+    if ( ! tree.cs || tree.cs.length < 1) return;
+    result.style = tree.cs.length === 1 ? tree.cs[0] : tree.cs;
+  };
+
   var setAtts = function(tree, context, result, whiteList, blackList) {
 
     if ( ! tree.as) return;
@@ -366,11 +372,12 @@ var Slipdf = (function() {
 
   var apply_text = function(tree, context) {
 
-    var r = { text: '', style: tree.cs };
+    var r = { text: '' };
 
     var t = tree.cn ? apply_value(tree, context) : null;
     if (t) r.text = t.toString().trim();
 
+    setStyle(tree, r);
     setAtts(tree, context, r);
 
     return r;
@@ -443,7 +450,7 @@ var Slipdf = (function() {
 
     var r = {};
     r.image = getStringAtt(tree, context, 'src');
-    r.style = tree.cs;
+    setStyle(tree, r);
     setAtts(tree, context, r, null, [ 'src' ]);
 
     return r;
@@ -477,6 +484,7 @@ var Slipdf = (function() {
 
     var tableAtts = [ 'widths', 'heights', 'headerRows', 'layout' ];
 
+    setStyle(tree, r);
     setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
     setAtts(tree, context, table, tableAtts, null); // wl / bl
 
@@ -625,10 +633,12 @@ var Slipdf = (function() {
     var tree = self.prepare(s);
 
     return function(context) {
+
       context.colours = colours;
       context.colors = colours;
       context.dataUrls = dataUrls;
       context.ffalse = [ false, false, false, false ];
+
       return apply_document(tree, context); };
   };
 

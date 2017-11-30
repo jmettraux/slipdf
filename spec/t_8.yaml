@@ -7,11 +7,11 @@ content:
       layout: { defaultBorder: false }
       body:
         - - text: 'Row 0, Cell 0'
-            style: [ 'source' ]
+            style: source
           - image: 'Row0Cell1'
-            style: [ 'logo' ]
+            style: logo
         - - text: 'Row 1, Cell 0 and 1'
-            style: [ 'banner' ]
+            style: banner
             colSpan: 2
     margin: [ 7, 0 ]
 

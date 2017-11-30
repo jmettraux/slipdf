@@ -12,6 +12,10 @@ styles:
   shield:
     width: '154'
     margin: [ 7, 7, 7, 7 ]
+  normal:
+    marginLeft: 7
+    fontSize: 8
 content:
   - text: 'This is template 12'
+    style: normal
 
