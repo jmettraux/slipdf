@@ -307,10 +307,19 @@ var Slipdf = (function() {
     return a.map(function(e) { return e.toString(); }).join(joiner);
   };
 
-  var setStyle = function(tree, result) {
+  var setStyle = function(tree, context, result) {
 
     if ( ! tree.cs || tree.cs.length < 1) return;
     result.style = tree.cs.length === 1 ? tree.cs[0] : tree.cs;
+
+    // copy styles :-(
+
+    if ( ! context._styles) return;
+
+    tree.cs.forEach(function(s) {
+      var h = context._styles[s];
+      if (h) for(var k in h) { result[k] = h[k]; }
+    });
   };
 
   var setAtts = function(tree, context, result, whiteList, blackList) {
@@ -379,7 +388,7 @@ var Slipdf = (function() {
     //if (t) r.text = t.toString().trim();
     if (t) r.text = t.toString();
 
-    setStyle(tree, r);
+    setStyle(tree, context, r);
     setAtts(tree, context, r);
 
     return r;
@@ -452,7 +461,7 @@ var Slipdf = (function() {
 
     var r = {};
     r.image = getStringAtt(tree, context, 'src');
-    setStyle(tree, r);
+    setStyle(tree, context, r);
     setAtts(tree, context, r, null, [ 'src' ]);
 
     return r;
@@ -486,7 +495,7 @@ var Slipdf = (function() {
 
     var tableAtts = [ 'widths', 'heights', 'headerRows', 'layout' ];
 
-    setStyle(tree, r);
+    setStyle(tree, context, r);
     setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
     setAtts(tree, context, table, tableAtts, null); // wl / bl
 
@@ -541,7 +550,10 @@ var Slipdf = (function() {
 
     var st = lookup(tree, 'styles');
     tree.cn = tree.cn.filter(function(t) { return t.t !== 'styles'; });
-    if (st) doc.styles = getStyles(st, context);
+    if (st) {
+      doc.styles = getStyles(st, context);
+      context._styles = doc.styles;
+    }
 
     // header
 
