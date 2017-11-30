@@ -106,7 +106,7 @@ describe 'Slipdf' do
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
-              { 's' => ' landscape' }
+              { 's' => 'landscape' }
             ] },
           ] }
       )
@@ -126,7 +126,7 @@ describe 'Slipdf' do
       ).to eq(
         { 't' => 'doc', 'cn' => [
             { 't' => 'x', 'cn' => [
-              { 's' => ' user: ' },
+              { 's' => 'user: ' },
               { 'x' => '=', 'c' => 'user.login' },
               { 's' => ' id: ' },
               { 'x' => '=', 'c' => 'user.id' },
