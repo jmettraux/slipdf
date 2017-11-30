@@ -493,7 +493,7 @@ var Slipdf = (function() {
     var table = {};
     var r = { table: table };
 
-    var tableAtts = [ 'widths', 'heights', 'headerRows', 'layout' ];
+    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
 
     setStyle(tree, context, r);
     setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
@@ -515,6 +515,7 @@ var Slipdf = (function() {
 
 //var r = apply_content(tree, ctx);
 //clog(r);
+//clog(JSON.parse(JSON.stringify(r)));
 //return r;
       return apply_content(tree, ctx);
     };

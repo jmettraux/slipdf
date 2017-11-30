@@ -4,7 +4,6 @@ content:
   - text: This is template 8
   - table:
       widths: [ '*', 'auto' ]
-      layout: { defaultBorder: false }
       body:
         - - text: 'Row 0, Cell 0'
             style: source
@@ -13,5 +12,6 @@ content:
         - - text: 'Row 1, Cell 0 and 1'
             style: banner
             colSpan: 2
+    layout: { defaultBorder: false }
     margin: [ 7, 0 ]
 
