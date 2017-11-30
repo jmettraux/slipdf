@@ -166,7 +166,7 @@ describe 'Slipdf' do
               key= k
       }.inspect
       #puts '-' * 80; print_tree(js "return Slipdf.debug(#{src}, 2);")
-      puts '-' * 80; pp(js "return Slipdf.prepare(#{src});")
+      #puts '-' * 80; pp(js "return Slipdf.prepare(#{src});")
 
       expect(
         js("return Slipdf.prepare(#{src});")
@@ -174,7 +174,12 @@ describe 'Slipdf' do
         { 't' => 'doc', 'cn' => [
           { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
             { 't' => 'name', 'cn' => [
-              { 'x' => '=', 'c' => 'c.name' } ] } ] } ] }
+              { 'x' => '=', 'c' => 'c.name' } ] },
+            { 'x' => '-',
+              'c' => "[ 'a', 'b', 'c' ].forEach(function(k) {",
+              'cn' => [
+                { 't' => 'key', 'cn' => [ { 'x' => '=', 'c' => 'k' } ] },
+              ] } ] } ] }
       )
     end
 
