@@ -221,51 +221,21 @@ var Slipdf = (function() {
   var VERSION = '1.0.0';
 
   var dataUrls = {};
-  var colours = {};
 
   // protected
 
   var debugOn = function() { return (typeof DEBUG) !== 'undefined' };
 
-  var pushAll = function(targetArray, src) {
+  var pushAll = function(a, o) {
 
-    if (Array.isArray(src)) src.forEach(function(e) { targetArray.push(e); });
-    else targetArray.push(src);
+    if (o === undefined || o === null) {}
+    else if (Array.isArray(o)) { o.forEach(function(e) { a.push(e); }); }
+    else { a.push(o); }
 
-    return targetArray;
+    return a;
   };
 
-  var lookup = function(tree, tags) {
-
-    if ((typeof tags) === 'string') tags = [ tags ];
-
-    if (tags.includes(tree.t)) return tree;
-    if ( ! tree.cn) return null;
-    for (var i = 0, l = tree.cn.length; i < l; i++) {
-      var r = lookup(tree.cn[i], tags); if (r) return r;
-    }
-    return null;
-  };
-
-  //var gather = function(tree, tags) {
-  var gather = function(tree, tags, skip, acc) {
-
-    acc = acc || [];
-
-    if ((typeof tags) === 'string') tags = [ tags ];
-    else if (tags === undefined) tags = null;
-
-    if ( ! skip && ((tags && tags.includes(tree.t)) || ( ! tags && tree.t))) {
-      acc.push(tree);
-    }
-    else if (tree.cn) {
-      tree.cn.forEach(function(c) { gather(c, tags, false, acc); });
-    }
-
-    return acc;
-  };
-
-  var do_eval = function(context, code) {
+  var doEval = function(context, code) {
 
     if ( ! (
       code.match(/\s*for/))
@@ -285,29 +255,130 @@ var Slipdf = (function() {
     return func.apply(null, args);
   };
 
-  var getAtt = function(tree, context, key) {
+//  var apply_img = function(tree, context) {
+//
+//    var r = {};
+//    r.image = getStringAtt(tree, context, 'src');
+//    setStyle(tree, context, r);
+//    setAtts(tree, context, r, null, [ 'src' ]);
+//
+//    return r;
+//  };
 
-    if ( ! tree.as) return null;
+  var apply_img = function(tree, context, result) {
 
-    var a = tree.as.find(function(kv) { return kv[0] === key; });
-    if ( ! a) return null;
+    var img = {};
+    applyStyles(tree, context, img);
+    applyAttributes(tree, context, img);
+    img.image = img.src; delete img.src;
 
-    //return apply_content({ cn: a[1] }, context);
-    return apply_value({ cn: a[1] }, context);
+    result.push(img); return result;
   };
 
-  var getStringAtt = function(tree, context, key, joiner) {
+  var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
+    // whiteList
+  var TD_RM = { colspan: 'colSpan', rowspan: 'rowSpan' };
+    // renameMap
 
-    joiner = joiner || '';
+  var apply_td = function(tree, context, result) {
 
-    var a = getAtt(tree, context, key);
-    if ( ! a) return null;
-    if ( ! Array.isArray(a)) a = [ a ];
+    pushAll(result, applyChildren(tree, context, []));
 
-    return a.map(function(e) { return e.toString(); }).join(joiner);
+    if (result[0]) {
+      applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
+    }
+
+    return result;
+  }
+
+  var apply_tr = function(tree, context, result) {
+
+    result.push(applyChildren(tree, context, [])); return result;
   };
 
-  var setStyle = function(tree, context, result) {
+  //var apply_tbody = applyChildren; // pass through
+    // execjs tells me that eval('apply_tbody') is not function :-(, hence...
+  var apply_tbody = function(t, c, r) { return applyChildren(t, c, r); };
+
+  var apply_table = function(tree, context, result) {
+
+    var table = {};
+    var r = { table: table };
+
+    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r, null, tableAtts); // whitelist / blacklist
+    applyAttributes(tree, context, table, tableAtts, null); // wl / bl
+
+    table.body = applyChildren(tree, context, []);
+
+    result.push(r); return r;
+  };
+
+  var apply_colours = function(tree, context, result) {
+
+    if ( ! tree.cn || tree.cn.length < 1) return;
+
+    tree.cn
+      .forEach(function(c) {
+        context.colours[c.t] = applyAndMergeChildren(c, context, result);
+      });
+  };
+
+  var apply_styles = function(tree, context, result) {
+
+    result.styles = {};
+    context._styles = result.styles;
+
+    if (tree.cn) tree.cn
+      .forEach(function(c) {
+        result.styles[c.t] = applyAndMergeChildren(c, context, result);
+      });
+  };
+
+  var applyFooterFunction = function(tree, context, result, pk, tpk) {
+
+    var f = function(p, tp) {
+
+      var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+      ctx[pk] = p;
+      ctx[tpk] = tp;
+
+//var r = apply(tree, ctx, []);
+//clog(r);
+//clog(JSON.parse(JSON.stringify(r)));
+//return r;
+      return applyChildren(tree, ctx, []);
+    };
+    if (debugOn) {
+      f.toJSON = function() {
+        return 'footer function jlen' + JSON.stringify(tree.cn[0]).length;
+      }
+    }
+
+    result.footer = f;
+  };
+
+  var apply_attribute = function(tree, context, result) {
+
+    result[tree.k] = applyAndMergeChildren(tree, context, result);
+  };
+
+  var applyAttributes = function(
+    tree, context, result, whiteList, blackList, renameMap
+  ) {
+
+    if (tree.as) tree.as
+      .forEach(function(kv) {
+        var k = kv[0]; var v = kv[1];
+        if (blackList && blackList.includes(k)) return;
+        if (whiteList && ! whiteList.includes(k)) return;
+        if (renameMap) k = renameMap[k] || k;
+        apply({ t: 'attribute', k: k, cn: v }, context, result); });
+  };
+
+  var applyStyles = function(tree, context, result) {
 
     if ( ! tree.cs || tree.cs.length < 1) return;
     result.style = tree.cs.length === 1 ? tree.cs[0] : tree.cs;
@@ -316,281 +387,155 @@ var Slipdf = (function() {
 
     if ( ! context._styles) return;
 
-    tree.cs.forEach(function(s) {
-      var h = context._styles[s];
-      if (h) for(var k in h) { result[k] = h[k]; }
-    });
+    tree.cs
+      .forEach(function(s) {
+        var h = context._styles[s];
+        if (h) for(var k in h) { result[k] = h[k]; }
+      });
   };
 
-  var setAtts = function(tree, context, result, whiteList, blackList) {
+  var applyCodeFor = function(tree, context, result, match) {
 
-    if ( ! tree.as) return;
-
-    tree.as.forEach(function(kv) {
-      var k = kv[0];
-      if (blackList && blackList.includes(k)) return;
-      if (whiteList && ! whiteList.includes(k)) return;
-      var v = kv[1];
-      result[k] = getAtt(tree, context, k); });
+    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    ctx.__fun = function() {
+      applyChildren(tree, ctx, result); };
+    doEval(
+      ctx,
+      tree.c + ' context.' + match[1] + ' = ' + match[1] +';' + ' __fun(); }');
   };
 
-  var addColours = function(tree, context) {
-
-    tree.cn.forEach(function(c) {
-      colours[c.t] = apply_value_trim(c, context);
-    });
-  };
-
-  var getChildValue = function(tree, context, childTag) {
-
-    var t = lookup(tree, childTag);
-    return t ? apply_value_trim(t, context) : null;
-  };
-
-  var getStyles = function(tree, context) {
-
-    return (tree.cn || [])
-      .reduce(
-        function(r, c) {
-          r[c.t] = getChildValue(tree, context, c.t);
-          return r; },
-        {});
-  };
-
-  var apply_value_code = function(tree, context) {
-
-    return do_eval(context, tree.c);
-  };
-
-  var apply_value = function(tree, context) {
-
-    if (tree.cn.length === 1 && tree.cn[0].x)
-      return apply_value_code(tree.cn[0], context);
-
-    return tree.cn.reduce(
-      function(s, c) {
-        if (c.s) return s + c.s;
-        return s + apply_value_code(c, context); },
-      '')
-  };
-
-  var apply_value_trim = function(tree, context) {
-
-    var v = apply_value(tree, context);
-    return ((typeof v) === 'string') ? v.trim() : v;
-  };
-
-  var apply_text = function(tree, context) {
-
-    var r = { text: '' };
-
-    var t = tree.cn ? apply_value(tree, context) : null;
-    //if (t) r.text = t.toString().trim();
-    if (t) r.text = t.toString();
-
-    setStyle(tree, context, r);
-    setAtts(tree, context, r);
-
-    return r;
-  };
-  var apply_p = apply_text;
-
-  var apply_dash_block = function(tree, context, match) {
-
-    var rs = [];
+  var applyCodeFunction = function(tree, context, result, match) {
 
     var as = match[1].trim().split(/\s*,\s*/);
     var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
     ctx.__fun = function(args) {
       as.forEach(function(a, i) { ctx[a] = args[i]; });
-      pushAll(rs, apply_content(tree, ctx)); };
-    do_eval(
-      ctx, tree.c + ' return __fun(arguments); })');
-
-    return rs;
+      applyChildren(tree, ctx, result); };
+    doEval(
+      ctx,
+      tree.c + ' return __fun(arguments); })');
   };
 
-  var apply_dash_for = function(tree, context, m) {
+  var applyReturningCode = function(tree, context, result) {
 
-    var rs = [];
-
-    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
-    ctx.__fun = function() {
-      pushAll(rs, apply_content(tree, ctx)); };
-    do_eval(
-      ctx, tree.c + ' context.' + m[1] + ' = ' + m[1] +';' + ' __fun(); }');
-
-    return rs;
+    result.push(doEval(context, tree.c));
   };
 
-  var apply_dash = function(tree, context) {
-
-    //if (tree.c.match(/{\s*$/)) return apply_dash_block(tree, context);
+  var applyCode = function(tree, context, result) {
 
     var m = tree.c.match(/\bfunction\s*\(([^)]*)\s*\)\s*{\s*$/);
-    if (m) return apply_dash_block(tree, context, m);
+    if (m) return applyCodeFunction(tree, context, result, m);
 
     m = tree.c.match(/\bfor\s*\(var\s+([^\s=]+)\s*=.+{\s*$/);
-    if (m) return apply_dash_for(tree, context, m);
+    if (m) return applyCodeFor(tree, context, result, m);
 
-    apply_value_code(tree, context); return null;
+    doEval(context, tree.c);
   };
 
-  var apply_equal = apply_value_code;
+  var applyPseudoAttribute = function(tree, context, result) {
 
-  var apply_content = function(tree, context) {
-
-    return tree.cn
-      .map(function(c) {
-        //
-        var fun; if (c.t) fun = 'apply_' + c.t;
-        else if (c.x === '=') fun = 'apply_equal';
-        else if (c.x === '-') fun = 'apply_dash';
-        else throw new Error(
-          'apply_content() cannot make sense of ' + JSON.stringify(c));
-        //
-        return eval(fun)(c, context); })
-      .reduce(
-        function(a, e) {
-          if (Array.isArray(e)) { a = a.concat(e); } else { a.push(e); };
-          return a; },
-        []);
+    result[tree.t] = applyAndMergeChildren(tree, context);
   };
 
-  var apply_img = function(tree, context) {
+  var apply_document = function(tree, context, result) {
 
-    var r = {};
-    r.image = getStringAtt(tree, context, 'src');
-    setStyle(tree, context, r);
-    setAtts(tree, context, r, null, [ 'src' ]);
+    applyAttributes(tree, context, result);
 
-    return r;
+    (tree.cn || [])
+      .forEach(function(c) {
+        if ([
+          'pageSize', 'pageOrientation', 'pageMargins'
+        ].includes(c.t)) { c.pa = true; }
+      });
+
+    applyChildren(tree, context, result);
   };
 
-  var apply_td = function(tree, context) {
+  var applyS = function(tree, context, result) {
 
-    var r = apply_content(tree, context);
-
-    var cs = getAtt(tree, context, 'colspan');
-    if (cs && r[0]) r[0].colSpan = cs;
-
-    var rs = getAtt(tree, context, 'rowspan');
-    if (rs && r[0]) r[0].rowSpan = rs;
-
-    return r;
+    result.push(tree.s);
   };
 
-  var apply_tr = function(tree, context) {
+  var apply_p = function(tree, context, result) {
 
-    return gather(tree, 'td')
-      .reduce(
-        function(a, td) { return pushAll(a, apply_td(td, context)); },
-        [])
+    var r = { text: applyAndMergeChildren(tree, context) };
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    result.push(r);
   };
 
-  var apply_table = function(tree, context) {
+  var apply_content = function(tree, context, result) {
 
-    var table = {};
-    var r = { table: table };
+    result.content = [];
 
-    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
-
-    setStyle(tree, context, r);
-    setAtts(tree, context, r, null, tableAtts); // whitelist / blacklist
-    setAtts(tree, context, table, tableAtts, null); // wl / bl
-
-    table.body = gather(tree, 'tr')
-      .map(function(tr) { return apply_tr(tr, context); });
-
-    return r;
+    applyChildren(tree, context, result.content);
   };
+  var apply_body = apply_content;
 
-  var apply_footer_function = function(tree, context, pk, tpk) {
+  var apply_footer = function(tree, context, result) {
 
-    var f = function(p, tp) {
+    if ( ! tree.cn) return;
 
-      var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
-      ctx[pk] = p;
-      ctx[tpk] = tp;
+    var c0 =
+      tree.cn[0];
+    var m = ((c0.x === '=' && c0.c) || '')
+      .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/)
 
-//var r = apply_content(tree, ctx);
-//clog(r);
-//clog(JSON.parse(JSON.stringify(r)));
-//return r;
-      return apply_content(tree, ctx);
-    };
-    if (debugOn) {
-      f.toJSON = function() {
-        return 'footer function jlen' + JSON.stringify(tree.cn[0]).length;
-      }
+    if (m) {
+      applyFooterFunction(tree, context, result, m[1], m[2]);
     }
-
-    return f;
+    else {
+      result.footer = [];
+      applyChildren(tree, context, result.footer);
+    }
   };
 
-  var apply_document = function(tree, context) {
+  var apply_header = function(tree, context, result) {
 
-    if (tree.t !== 'document') throw new Error('Root is not a "document"');
+result.header = undefined; // TODO
+  };
 
-    var doc = {};
+  var applyChildren = function(tree, context, result) {
 
-    // document "properties"
+    (tree.cn || [])
+      .forEach(function(c) { apply(c, context, result); });
 
-    'pageSize pageOrientation pageMargins defaultStyle'
-      .split(' ')
-      .forEach(function(k) {
-        var v = getAtt(tree, context, k) || getChildValue(tree, context, k);
-        if (v) doc[k] = v; });
+    return result;
+  };
 
-    // colours
+  var applyAndMergeChildren = function(tree, context) {
 
-    var co = lookup(tree, [ 'colours', 'colors' ]);
-    if (co) addColours(co, context);
+    var a = [];
+    (tree.cn || []).forEach(function(c) { apply(c, context, a); });
 
-    // styles
+    if (a.length < 1) return null;
 
-    var st = lookup(tree, 'styles');
-    tree.cn = tree.cn.filter(function(t) { return t.t !== 'styles'; });
-    if (st) {
-      doc.styles = getStyles(st, context);
-      context._styles = doc.styles;
-    }
+    if (a.length === 1) return a[0];
+    if ((typeof a[0]) !== 'string') return a;
 
-    // header
+    return a.reduce(
+      function(s, e) { return s + (e ? e.toString() : ''); },
+      '');
+  };
 
-    // TODO
+  var apply = function(tree, context, result) {
 
-    // footer
+    var fun;
 
-    var footer = lookup(tree, 'footer');
-      //
-    if (footer && footer.cn && footer.cn[0]) {
+    if (tree.pa) fun = 'applyPseudoAttribute';
+    else if (tree.t) fun = 'apply_' + tree.t;
+    else if (tree.s) fun = 'applyS';
+    else if (tree.x === '=') fun = 'applyReturningCode';
+    else if (tree.x === '-') fun = 'applyCode';
+    else
+      throw new Error('apply() cannot make sense of ' + JSON.stringify(tree));
 
-      var c0 =
-        footer.cn[0];
-      var m = ((c0.x === '=' && c0.c) || '')
-        .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/)
+if ((typeof eval(fun)) !== 'function') throw new Error('fun:' + fun);
+    eval(fun)(tree, context, result);
 
-      doc.footer =
-        m ?
-        apply_footer_function(c0, context, m[1], m[2]) :
-        apply_content(c0, context);
-    }
-
-    // content
-
-    var content = lookup(tree, [ 'content', 'body' ]);
-
-    if ( ! content) {
-      throw new Error('Document is missing a "content" or "body" node'); }
-
-    doc.content =
-      apply_content(content, context)
-        .filter(function(c) { return c !== null; });
-
-    // done, return document object
-
-    return doc;
+    return result;
   };
 
   // public
@@ -652,12 +597,15 @@ var Slipdf = (function() {
 
     return function(context) {
 
-      context.colours = colours;
-      context.colors = colours;
+      var cs = {};
+      context.colours = cs;
+      context.colors = cs;
+
       context.dataUrls = dataUrls;
+
       context.ffalse = [ false, false, false, false ];
 
-      return apply_document(tree, context); };
+      return apply(tree, context, {}); };
   };
 
   // done.
