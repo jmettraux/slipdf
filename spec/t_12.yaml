@@ -18,4 +18,6 @@ styles:
 content:
   - text: 'This is template 12'
     style: normal
+  - text: 'Oh well'
+    style: stuffXx
 

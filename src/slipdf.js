@@ -77,8 +77,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return alt(null, i,
       parAtts, sbrAtts, braAtts, atts); }
 
-  function klass(i) { return rex('class', i, /\.[-_a-z]+/); }
-  function tag(i) { return rex('tag', i, /[a-z][a-zA-Z0-9]*/); }
+  function klass(i) { return rex('class', i, /\.[a-z][-_a-zA-Z0-9]*/); }
+  function tag(i) { return rex('tag', i, /[a-z][-_a-zA-Z0-9]*/); }
 
   function head(i) { return seq('head', i, tag, klass, '*'); }
 
