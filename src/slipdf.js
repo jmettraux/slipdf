@@ -502,6 +502,9 @@ var Slipdf = (function() {
       ctx[pk] = p;
       ctx[tpk] = tp;
 
+//var r = apply_content(tree, ctx);
+//clog(r);
+//return r;
       return apply_content(tree, ctx);
     };
     if (debugOn) {
