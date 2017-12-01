@@ -252,18 +252,13 @@ var Slipdf = (function() {
     var args = ks.map(function(k) { return context[k]; });
     args.splice(0, 0, code);
 
-    return func.apply(null, args);
+    try {
+      return func.apply(null, args);
+    } catch(e) {
+      throw new Error(
+        "slipdf couldn't eval >" + code + "< (cause: >" + e.toString() + "<)");
+    }
   };
-
-//  var apply_img = function(tree, context) {
-//
-//    var r = {};
-//    r.image = getStringAtt(tree, context, 'src');
-//    setStyle(tree, context, r);
-//    setAtts(tree, context, r, null, [ 'src' ]);
-//
-//    return r;
-//  };
 
   var apply_img = function(tree, context, result) {
 
