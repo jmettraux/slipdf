@@ -1,0 +1,11 @@
+
+document pageSize="A4"
+
+  header
+  footer
+    = function(p, tp) {
+      p.footer.pagination #{p} / #{tp}
+
+  content
+    p This is template #{template}
+

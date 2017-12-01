@@ -340,15 +340,15 @@ var Slipdf = (function() {
       ctx[pk] = p;
       ctx[tpk] = tp;
 
-//var r = apply(tree, ctx, []);
+//var r = apply(tree.cn[0], ctx, []);
 //clog(r);
 //clog(JSON.parse(JSON.stringify(r)));
 //return r;
-      return applyChildren(tree, ctx, []);
+      return applyChildren(tree.cn[0], ctx, []);
     };
     if (debugOn) {
       f.toJSON = function() {
-        return 'footer function jlen' + JSON.stringify(tree.cn[0]).length;
+        return 'footer function jlen' + JSON.stringify(tree.cn[0].cn).length;
       }
     }
 
@@ -502,17 +502,19 @@ result.header = undefined; // TODO
 
   var applyAndMergeChildren = function(tree, context) {
 
-    var a = [];
-    (tree.cn || []).forEach(function(c) { apply(c, context, a); });
+    var a = applyChildren(tree, context, []);
+
+    if (
+      tree.cn.find(function(c) { return c.s; })
+    ) {
+      return a.reduce(
+        function(s, e) { return s + (e ? e.toString() : ''); },
+        '');
+    }
 
     if (a.length < 1) return null;
-
     if (a.length === 1) return a[0];
-    if ((typeof a[0]) !== 'string') return a;
-
-    return a.reduce(
-      function(s, e) { return s + (e ? e.toString() : ''); },
-      '');
+    return a;
   };
 
   var apply = function(tree, context, result) {
