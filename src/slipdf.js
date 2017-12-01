@@ -505,6 +505,7 @@ result.header = undefined; // TODO
     var a = applyChildren(tree, context, []);
 
     if (
+      tree.cn &&
       tree.cn.find(function(c) { return c.s; })
     ) {
       return a.reduce(
