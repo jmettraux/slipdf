@@ -530,7 +530,7 @@ result.header = undefined; // TODO
     else
       throw new Error('apply() cannot make sense of ' + JSON.stringify(tree));
 
-if ((typeof eval(fun)) !== 'function') throw new Error('fun:' + fun);
+    //if ((typeof eval(fun)) !== 'function') throw new Error('fun:' + fun);
     eval(fun)(tree, context, result);
 
     return result;
