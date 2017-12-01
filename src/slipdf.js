@@ -36,8 +36,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function hashBra(i) { return str(null, i, '#{'); }
   function dq(i) { return str(null, i, '"'); }
-  function dqCodes(i) { return rep('code', i, braElt, 1); }
-  function dqCode(i) { return seq(null, i, hashBra, dqCodes, '?', braEnd); }
+  function dqCodes(i) { return rep('code', i, braElt, 0); }
+  function dqCode(i) { return seq(null, i, hashBra, dqCodes, braEnd); }
   function dqText(i) { return rex('string', i, /(\\"|[^"])+?(?=#\{|"|\n|$)/); }
   function dqElt(i) { return alt(null, i, dqCode, dqText); }
   function attDqValue(i) { return seq('attDqValue', i, dq, dqElt, '*', dq); }
@@ -426,7 +426,8 @@ var Slipdf = (function() {
   var apply_td = function(tree, context, result) {
 
     applyChildren(tree, context, [])
-      .forEach(function(c) { push(result, c); });
+      .forEach(function(c) {
+        push(result, c); });
 
     if (result[0]) {
       applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
