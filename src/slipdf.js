@@ -291,10 +291,6 @@ var Slipdf = (function() {
     result.push(applyChildren(tree, context, [])); return result;
   };
 
-  //var apply_tbody = applyChildren; // pass through
-    // execjs tells me that eval('apply_tbody') is not function :-(, hence...
-  var apply_tbody = function(t, c, r) { return applyChildren(t, c, r); };
-
   var apply_table = function(tree, context, result) {
 
     var table = {};
@@ -352,7 +348,7 @@ var Slipdf = (function() {
       }
     }
 
-    result.footer = f;
+    return f;
   };
 
   var apply_attribute = function(tree, context, result) {
@@ -469,28 +465,25 @@ var Slipdf = (function() {
   };
   var apply_body = apply_content;
 
-  var apply_footer = function(tree, context, result) {
+  var applyHeaderOrFooter = function(tree, context, result) {
 
     if ( ! tree.cn) return;
+
+    var k = tree.t;
 
     var c0 =
       tree.cn[0];
     var m = ((c0.x === '=' && c0.c) || '')
       .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/)
 
-    if (m) {
-      applyFooterFunction(tree, context, result, m[1], m[2]);
-    }
-    else {
-      result.footer = [];
-      applyChildren(tree, context, result.footer);
-    }
+    result[k] =
+      m ?
+      applyFooterFunction(tree, context, result, m[1], m[2]) :
+      applyChildren(tree, context, []);
   };
 
-  var apply_header = function(tree, context, result) {
-
-result.header = undefined; // TODO
-  };
+  var apply_footer = applyHeaderOrFooter;
+  var apply_header = applyHeaderOrFooter;
 
   var applyChildren = function(tree, context, result) {
 
@@ -517,6 +510,8 @@ result.header = undefined; // TODO
     if (a.length === 1) return a[0];
     return a;
   };
+
+  var apply_tbody = applyChildren; // pass through
 
   var apply = function(tree, context, result) {
 
