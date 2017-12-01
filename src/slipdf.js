@@ -228,13 +228,12 @@ var Slipdf = (function() {
 
   // helpers
 
-  var pushAll = function(a, o) {
+  var push = function(r, o) {
 
-    if (o === undefined || o === null) {}
-    else if (Array.isArray(o)) { o.forEach(function(e) { a.push(e); }); }
-    else { a.push(o); }
+    if (Array.isArray(r)) r.push(o);
+    else r.stack.push(o);
 
-    return a;
+    return r;
   };
 
   var doEval = function(context, code) {
@@ -340,7 +339,7 @@ var Slipdf = (function() {
 
   var applyReturningCode = function(tree, context, result) {
 
-    result.push(doEval(context, tree.c));
+    push(result, doEval(context, tree.c));
   };
 
   var applyCode = function(tree, context, result) {
@@ -361,7 +360,7 @@ var Slipdf = (function() {
 
   var applyS = function(tree, context, result) {
 
-    result.push(tree.s);
+    push(result, tree.s);
   };
 
   var applyHeaderOrFooter = function(tree, context, result) {
@@ -416,7 +415,7 @@ var Slipdf = (function() {
     applyAttributes(tree, context, img);
     img.image = img.src; delete img.src;
 
-    result.push(img); return result;
+    return push(result, img);
   };
 
   var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
@@ -426,7 +425,8 @@ var Slipdf = (function() {
 
   var apply_td = function(tree, context, result) {
 
-    pushAll(result, applyChildren(tree, context, []));
+    applyChildren(tree, context, [])
+      .forEach(function(c) { push(result, c); });
 
     if (result[0]) {
       applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
@@ -437,7 +437,7 @@ var Slipdf = (function() {
 
   var apply_tr = function(tree, context, result) {
 
-    result.push(applyChildren(tree, context, [])); return result;
+    return push(result, applyChildren(tree, context, []));
   };
 
   var apply_tbody = applyChildren; // pass through
@@ -455,7 +455,7 @@ var Slipdf = (function() {
 
     table.body = applyChildren(tree, context, []);
 
-    result.push(r); return r;
+    push(result, r); return r;
   };
 
   var apply_attribute = function(tree, context, result) {
@@ -470,14 +470,12 @@ var Slipdf = (function() {
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
 
-    result.push(r);
+    push(result, r);
   };
 
   var apply_content = function(tree, context, result) {
 
-    result.content = [];
-
-    applyChildren(tree, context, result.content);
+    result.content = applyChildren(tree, context, []);
   };
   var apply_body = apply_content;
 
