@@ -230,6 +230,11 @@ var Slipdf = (function() {
 
   // helpers
 
+  var isStringArray = function(cn) {
+
+    return cn && cn.find(function(c) { return ((typeof c.s) === 'string'); });
+  };
+
   var push = function(r, o) {
 
     if (Array.isArray(r)) r.push(o);
@@ -357,7 +362,7 @@ var Slipdf = (function() {
 
   var applyPseudoAttribute = function(tree, context, result) {
 
-    result[tree.t] = applyAndMergeChildren(tree, context);
+    result[tree.t] = applyAndReduceChildren(tree, context);
   };
 
   var applyS = function(tree, context, result) {
@@ -390,22 +395,35 @@ var Slipdf = (function() {
     return result;
   };
 
-  var applyAndMergeChildren = function(tree, context) {
+  var applyAndReduceChildren = function(tree, context) {
 
     var a = applyChildren(tree, context, []);
 
-    if (
-      tree.cn &&
-      tree.cn.find(function(c) { return (typeof c.s) === 'string'; })
-    ) {
-      return a.reduce(
-        function(s, e) { return s + (e ? e.toString() : ''); },
-        '');
-    }
-
     if (a.length < 1) return null;
+
+    if (isStringArray(tree.cn)) return a.reduce(
+      function(s, e) {
+        if (e === null || e === undefined) return s;
+        return s + e.toString(); },
+      '');
+
     if (a.length === 1) return a[0];
     return a;
+  };
+
+  var applyAndStackChildren = function(tree, context) {
+
+    var r =
+      isStringArray(tree.cn) ?
+      applyAndReduceChildren(tree, context) :
+      applyChildren(tree, context, []);
+
+    if (Array.isArray(r) && r.length === 1) r = r[0];
+
+    if ((typeof r) === 'string') r = { text: r };
+    else if (Array.isArray(r)) r = { stack: r };
+
+    return r;
   };
 
   // tag apply functions
@@ -427,15 +445,12 @@ var Slipdf = (function() {
 
   var apply_td = function(tree, context, result) {
 
-    applyChildren(tree, context, [])
-      .forEach(function(c) {
-        push(result, c); });
+    var r = applyAndStackChildren(tree, context);
 
-    if (result[0]) {
-      applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
-    }
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r, TD_WL, null, TD_RM);
 
-    return result;
+    return push(result, r);
   }
 
   var apply_tr = function(tree, context, result) {
@@ -463,12 +478,12 @@ var Slipdf = (function() {
 
   var apply_attribute = function(tree, context, result) {
 
-    result[tree.k] = applyAndMergeChildren(tree, context, result);
+    result[tree.k] = applyAndReduceChildren(tree, context, result);
   };
 
   var apply_p = function(tree, context, result) {
 
-    var r = { text: applyAndMergeChildren(tree, context) };
+    var r = { text: applyAndReduceChildren(tree, context) };
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
@@ -488,7 +503,7 @@ var Slipdf = (function() {
 
     tree.cn
       .forEach(function(c) {
-        context.colours[c.t] = applyAndMergeChildren(c, context, result);
+        context.colours[c.t] = applyAndReduceChildren(c, context, result);
       });
   };
 
@@ -499,7 +514,7 @@ var Slipdf = (function() {
 
     if (tree.cn) tree.cn
       .forEach(function(c) {
-        result.styles[c.t] = applyAndMergeChildren(c, context, result);
+        result.styles[c.t] = applyAndReduceChildren(c, context, result);
       });
   };
 

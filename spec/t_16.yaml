@@ -1,0 +1,10 @@
+---
+pageSize: A4
+content:
+- text: 'This is template 16'
+- table:
+    headerRows: '1'
+    body:
+    - - { text: '0', style: 'cell0' }
+      - { text: '2', style: 'cell1' }
+
