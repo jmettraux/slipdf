@@ -1,0 +1,15 @@
+
+document pageSize='A4'
+
+  header
+  footer
+
+  content
+    p This is template #{template}
+    table headerRows=1
+      - users.forEach(function(user) {
+        tr
+          - [ 'name', 'age' ].forEach(function(k) {
+            td
+              p.cell user.#{k}: #{user[k]}
+

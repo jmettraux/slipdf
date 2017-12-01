@@ -1,0 +1,20 @@
+---
+pageSize: A4
+content:
+- text: 'This is template 15'
+- table:
+    headerRows: '1'
+    body:
+    - - text: 'user.name: alice'
+        style: cell
+      - text: 'user.age: 33'
+        style: cell
+    - - text: 'user.name: bob'
+        style: cell
+      - text: 'user.age: 44'
+        style: cell
+    - - text: 'user.name: charly'
+        style: cell
+      - text: 'user.age: 22'
+        style: cell
+
