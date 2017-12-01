@@ -6,7 +6,7 @@
     { 'text' => 'This is template 6' },
     { 'text' => 'Crime and Punishment',
       'style' => [ 'footer', 'logo' ],
-      'data-x' => 5,
+      'data-x' => '5',
       'width' => 91 },
     { 'text' => 'The Idiot',
       'style' => [ 'footer', 'logo' ],

@@ -110,6 +110,16 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return t.subgather().map(rewrite);
   }
 
+  function rewrite_text(t) {
+
+    var es = t.subgather().map(rewrite);
+    if ( ! es.find(function(e) { return (typeof e.s) === 'string'; })) {
+      es.push({ s: '' }); // to ensure it results in a text
+    }
+
+    return es;
+  };
+
   function rewrite_attBraValue(t) {
 
     return { x: '=', c: t.string().trim() };
@@ -121,10 +131,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return { s: s };
   }
 
-  function rewrite_attDqValue(t) {
-
-    return t.subgather().map(rewrite);
-  }
+  var rewrite_attDqValue = rewrite_text;
 
   function rewrite_attPlainValue(t) {
 
@@ -190,11 +197,6 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
     return o;
   }
-
-  function rewrite_text(t) {
-
-    return t.subgather().map(rewrite);
-  };
 
   function rewrite_string(t) {
 
@@ -394,7 +396,7 @@ var Slipdf = (function() {
 
     if (
       tree.cn &&
-      tree.cn.find(function(c) { return c.s; })
+      tree.cn.find(function(c) { return (typeof c.s) === 'string'; })
     ) {
       return a.reduce(
         function(s, e) { return s + (e ? e.toString() : ''); },
@@ -524,7 +526,7 @@ var Slipdf = (function() {
 
     if (tree.pa) fun = 'applyPseudoAttribute';
     else if (tree.t) fun = 'apply_' + tree.t;
-    else if (tree.s) fun = 'applyS';
+    else if ((typeof tree.s) === 'string') fun = 'applyS';
     else if (tree.x === '=') fun = 'applyReturningCode';
     else if (tree.x === '-') fun = 'applyCode';
     else
