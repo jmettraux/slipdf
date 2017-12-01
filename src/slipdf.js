@@ -226,6 +226,8 @@ var Slipdf = (function() {
 
   var debugOn = function() { return (typeof DEBUG) !== 'undefined' };
 
+  // helpers
+
   var pushAll = function(a, o) {
 
     if (o === undefined || o === null) {}
@@ -260,73 +262,7 @@ var Slipdf = (function() {
     }
   };
 
-  var apply_img = function(tree, context, result) {
-
-    var img = {};
-    applyStyles(tree, context, img);
-    applyAttributes(tree, context, img);
-    img.image = img.src; delete img.src;
-
-    result.push(img); return result;
-  };
-
-  var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
-    // whiteList
-  var TD_RM = { colspan: 'colSpan', rowspan: 'rowSpan' };
-    // renameMap
-
-  var apply_td = function(tree, context, result) {
-
-    pushAll(result, applyChildren(tree, context, []));
-
-    if (result[0]) {
-      applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
-    }
-
-    return result;
-  }
-
-  var apply_tr = function(tree, context, result) {
-
-    result.push(applyChildren(tree, context, [])); return result;
-  };
-
-  var apply_table = function(tree, context, result) {
-
-    var table = {};
-    var r = { table: table };
-
-    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r, null, tableAtts); // whitelist / blacklist
-    applyAttributes(tree, context, table, tableAtts, null); // wl / bl
-
-    table.body = applyChildren(tree, context, []);
-
-    result.push(r); return r;
-  };
-
-  var apply_colours = function(tree, context, result) {
-
-    if ( ! tree.cn || tree.cn.length < 1) return;
-
-    tree.cn
-      .forEach(function(c) {
-        context.colours[c.t] = applyAndMergeChildren(c, context, result);
-      });
-  };
-
-  var apply_styles = function(tree, context, result) {
-
-    result.styles = {};
-    context._styles = result.styles;
-
-    if (tree.cn) tree.cn
-      .forEach(function(c) {
-        result.styles[c.t] = applyAndMergeChildren(c, context, result);
-      });
-  };
+  // generic apply functions
 
   var applyFooterFunction = function(tree, context, result, pk, tpk) {
 
@@ -349,11 +285,6 @@ var Slipdf = (function() {
     }
 
     return f;
-  };
-
-  var apply_attribute = function(tree, context, result) {
-
-    result[tree.k] = applyAndMergeChildren(tree, context, result);
   };
 
   var applyAttributes = function(
@@ -428,42 +359,10 @@ var Slipdf = (function() {
     result[tree.t] = applyAndMergeChildren(tree, context);
   };
 
-  var apply_document = function(tree, context, result) {
-
-    applyAttributes(tree, context, result);
-
-    (tree.cn || [])
-      .forEach(function(c) {
-        if ([
-          'pageSize', 'pageOrientation', 'pageMargins'
-        ].includes(c.t)) { c.pa = true; }
-      });
-
-    applyChildren(tree, context, result);
-  };
-
   var applyS = function(tree, context, result) {
 
     result.push(tree.s);
   };
-
-  var apply_p = function(tree, context, result) {
-
-    var r = { text: applyAndMergeChildren(tree, context) };
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r);
-
-    result.push(r);
-  };
-
-  var apply_content = function(tree, context, result) {
-
-    result.content = [];
-
-    applyChildren(tree, context, result.content);
-  };
-  var apply_body = apply_content;
 
   var applyHeaderOrFooter = function(tree, context, result) {
 
@@ -481,9 +380,6 @@ var Slipdf = (function() {
       applyFooterFunction(tree, context, result, m[1], m[2]) :
       applyChildren(tree, context, []);
   };
-
-  var apply_footer = applyHeaderOrFooter;
-  var apply_header = applyHeaderOrFooter;
 
   var applyChildren = function(tree, context, result) {
 
@@ -511,7 +407,117 @@ var Slipdf = (function() {
     return a;
   };
 
+  // tag apply functions
+
+  var apply_img = function(tree, context, result) {
+
+    var img = {};
+    applyStyles(tree, context, img);
+    applyAttributes(tree, context, img);
+    img.image = img.src; delete img.src;
+
+    result.push(img); return result;
+  };
+
+  var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
+    // whiteList
+  var TD_RM = { colspan: 'colSpan', rowspan: 'rowSpan' };
+    // renameMap
+
+  var apply_td = function(tree, context, result) {
+
+    pushAll(result, applyChildren(tree, context, []));
+
+    if (result[0]) {
+      applyAttributes(tree, context, result[0], TD_WL, null, TD_RM);
+    }
+
+    return result;
+  }
+
+  var apply_tr = function(tree, context, result) {
+
+    result.push(applyChildren(tree, context, [])); return result;
+  };
+
   var apply_tbody = applyChildren; // pass through
+
+  var apply_table = function(tree, context, result) {
+
+    var table = {};
+    var r = { table: table };
+
+    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r, null, tableAtts); // whitelist / blacklist
+    applyAttributes(tree, context, table, tableAtts, null); // wl / bl
+
+    table.body = applyChildren(tree, context, []);
+
+    result.push(r); return r;
+  };
+
+  var apply_attribute = function(tree, context, result) {
+
+    result[tree.k] = applyAndMergeChildren(tree, context, result);
+  };
+
+  var apply_p = function(tree, context, result) {
+
+    var r = { text: applyAndMergeChildren(tree, context) };
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    result.push(r);
+  };
+
+  var apply_content = function(tree, context, result) {
+
+    result.content = [];
+
+    applyChildren(tree, context, result.content);
+  };
+  var apply_body = apply_content;
+
+  var apply_colours = function(tree, context, result) {
+
+    if ( ! tree.cn || tree.cn.length < 1) return;
+
+    tree.cn
+      .forEach(function(c) {
+        context.colours[c.t] = applyAndMergeChildren(c, context, result);
+      });
+  };
+
+  var apply_styles = function(tree, context, result) {
+
+    result.styles = {};
+    context._styles = result.styles;
+
+    if (tree.cn) tree.cn
+      .forEach(function(c) {
+        result.styles[c.t] = applyAndMergeChildren(c, context, result);
+      });
+  };
+
+  var apply_footer = applyHeaderOrFooter;
+  var apply_header = applyHeaderOrFooter;
+
+  var apply_document = function(tree, context, result) {
+
+    applyAttributes(tree, context, result);
+
+    (tree.cn || [])
+      .forEach(function(c) {
+        if ([
+          'pageSize', 'pageOrientation', 'pageMargins'
+        ].includes(c.t)) { c.pa = true; }
+      });
+
+    applyChildren(tree, context, result);
+  };
 
   var apply = function(tree, context, result) {
 
