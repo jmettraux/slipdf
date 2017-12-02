@@ -1,0 +1,11 @@
+---
+pageSize: A4
+content:
+- text: 'This is template 19'
+- text: a
+  style: alpha
+- text: b
+  style: bravo
+- text: c
+  style: [ 'charly', 'carlo' ]
+

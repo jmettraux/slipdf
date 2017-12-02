@@ -299,33 +299,42 @@ var Slipdf = (function() {
     return f;
   };
 
+  var addStyle = function(context, result, style) {
+
+    var ss = style.split(',').map(function(s) { return s.trim(); });
+
+    ss.forEach(function(s) {
+      var h = (context._styles || {})[s]
+      if (h) for (var k in h) { result[k] = h[k]; } });
+
+    var css = result.style || []; if ( ! Array.isArray(css)) css = [ css ];
+    css = css.concat(ss);
+    if (css.length === 1) css = css[0];
+
+    result.style = css;
+  };
+
+  var applyStyles = function(tree, context, result) {
+
+    if ( ! tree.cs || tree.cs.length < 1) return;
+
+    tree.cs.forEach(function(c) { addStyle(context, result, c); });
+  };
+
   var applyAttributes = function(
     tree, context, result, whiteList, blackList, renameMap
   ) {
 
     if (tree.as) tree.as
       .forEach(function(kv) {
+        //
         var k = kv[0]; var v = kv[1];
+        //
         if (blackList && blackList.includes(k)) return;
         if (whiteList && ! whiteList.includes(k)) return;
         if (renameMap) k = renameMap[k] || k;
+        //
         apply({ t: 'attribute', k: k, cn: v }, context, result); });
-  };
-
-  var applyStyles = function(tree, context, result) {
-
-    if ( ! tree.cs || tree.cs.length < 1) return;
-    result.style = tree.cs.length === 1 ? tree.cs[0] : tree.cs;
-
-    // copy styles :-(
-
-    if ( ! context._styles) return;
-
-    tree.cs
-      .forEach(function(s) {
-        var h = context._styles[s];
-        if (h) for(var k in h) { result[k] = h[k]; }
-      });
   };
 
   var applyCodeIf = function(tree, context, result) {
@@ -497,7 +506,12 @@ var Slipdf = (function() {
 
   var apply_attribute = function(tree, context, result) {
 
-    result[tree.k] = applyAndReduceChildren(tree, context, result);
+    var v = applyAndReduceChildren(tree, context, result);
+
+    if (tree.k === 'class' || tree.k === 'style')
+      addStyle(context, result, v);
+    else
+      result[tree.k] = v;
   };
 
   var apply_p = function(tree, context, result) {
