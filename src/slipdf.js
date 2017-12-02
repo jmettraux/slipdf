@@ -206,10 +206,6 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function rewrite_code(t) {
 
-    //var c = t.string();
-    //var m = c.match(/\s*=\s*(.+)/);
-    //if (m) c = m[1];
-    //return { x: '=', c: c };
     return { x: '=', c: t.string() };
   };
 }); // end SlipdfParser
@@ -230,6 +226,11 @@ var Slipdf = (function() {
   var debugOn = function() { return (typeof DEBUG) !== 'undefined' };
 
   // helpers
+
+  var toString = function(o) {
+
+    return (o === null || o === undefined) ? '' : o.toString();
+  };
 
   var isStringArray = function(cn) {
 
@@ -501,7 +502,7 @@ var Slipdf = (function() {
 
   var apply_p = function(tree, context, result) {
 
-    var r = { text: applyAndReduceChildren(tree, context).toString() };
+    var r = { text: toString(applyAndReduceChildren(tree, context)) };
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
