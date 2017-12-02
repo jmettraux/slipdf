@@ -246,7 +246,7 @@ var Slipdf = (function() {
   var doEval = function(context, code) {
 
     if ( ! (
-      code.match(/\s*for/))
+      code.match(/\s*(if|for)/))
     ) {
       code = '(' + code + ')';
     }
@@ -322,6 +322,16 @@ var Slipdf = (function() {
       });
   };
 
+  var applyCodeIf = function(tree, context, result) {
+
+    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    ctx.__fun = function() {
+      applyChildren(tree, ctx, result); };
+    doEval(
+      ctx,
+      tree.c + ' __fun(arguments); }');
+  };
+
   var applyCodeFor = function(tree, context, result, match) {
 
     var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
@@ -356,6 +366,9 @@ var Slipdf = (function() {
 
     m = tree.c.match(/\bfor\s*\(var\s+([^\s=]+)\s*=.+{\s*$/);
     if (m) return applyCodeFor(tree, context, result, m);
+
+    m = tree.c.match(/\bif\s*\(.+\)\s*\{\s*$/);
+    if (m) return applyCodeIf(tree, context, result);
 
     doEval(context, tree.c);
   };
