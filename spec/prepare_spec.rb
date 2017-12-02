@@ -87,7 +87,7 @@ describe 'Slipdf' do
       ).to eq(
         { 't' => 'document', 'cn' => [
             { 't' => 'orientation', 'cn' => [
-              { 'x' => '=', 'c' => 'user.name' }
+              { 'x' => '=', 'c' => ' user.name' }
             ] },
           ] }
       )
@@ -152,7 +152,7 @@ describe 'Slipdf' do
         { 't' => 'doc', 'cn' => [
           { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
             { 't' => 'name', 'cn' => [
-              { 'x' => '=', 'c' => 'c.name' } ] } ] } ] }
+              { 'x' => '=', 'c' => ' c.name' } ] } ] } ] }
       )
     end
 
@@ -174,11 +174,11 @@ describe 'Slipdf' do
         { 't' => 'doc', 'cn' => [
           { 'x' => '-', 'c' => 'user.children.forEach(function(c) {', 'cn' => [
             { 't' => 'name', 'cn' => [
-              { 'x' => '=', 'c' => 'c.name' } ] },
+              { 'x' => '=', 'c' => ' c.name' } ] },
             { 'x' => '-',
               'c' => "[ 'a', 'b', 'c' ].forEach(function(k) {",
               'cn' => [
-                { 't' => 'key', 'cn' => [ { 'x' => '=', 'c' => 'k' } ] },
+                { 't' => 'key', 'cn' => [ { 'x' => '=', 'c' => ' k' } ] },
               ] } ] } ] }
       )
     end

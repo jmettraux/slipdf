@@ -32,7 +32,7 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function txtElt(i) { return alt(null, i, dqCode, txtText); }
   function text(i) { return rep('text', i, txtElt, 1); }
 
-  function code(i) { return rex('code', i, /[^\n]+/); }
+  function code(i) { return rex('code', i, /(\\\n|,\n|[^\n])+/); }
 
   function hashBra(i) { return str(null, i, '#{'); }
   function dq(i) { return str(null, i, '"'); }
@@ -86,7 +86,8 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function poq(i) { return rex(null, i, /('|\|[ \t]*)/); }
   function stringLine(i) { return seq('sline', i, spacestar, poq, text, eol); }
 
-  function plainCode(i) { return rex('code', i, /[ \t]*=[^\n]+/); }
+  function plainEqual(i) { return rex(null, i, /[ \t]*=/); }
+  function plainCode(i) { return seq(null, i, plainEqual, code); }
   function plainTail(i) { return alt('tail', i, plainCode, text); }
 
   function plainLine(i) {
@@ -205,11 +206,11 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function rewrite_code(t) {
 
-    var c = t.string();
-    var m = c.match(/\s*=\s*(.+)/);
-    if (m) c = m[1];
-
-    return { x: '=', c: c };
+    //var c = t.string();
+    //var m = c.match(/\s*=\s*(.+)/);
+    //if (m) c = m[1];
+    //return { x: '=', c: c };
+    return { x: '=', c: t.string() };
   };
 }); // end SlipdfParser
 
@@ -244,6 +245,10 @@ var Slipdf = (function() {
   };
 
   var doEval = function(context, code) {
+
+    code = code
+      .replace(/(\\\n)/g, '')
+      .replace(/,\n/g, ',');
 
     if ( ! (
       code.match(/\s*(if|for)/))
@@ -367,7 +372,7 @@ var Slipdf = (function() {
     m = tree.c.match(/\bfor\s*\(var\s+([^\s=]+)\s*=.+{\s*$/);
     if (m) return applyCodeFor(tree, context, result, m);
 
-    m = tree.c.match(/\bif\s*\(.+\)\s*\{\s*$/);
+    m = tree.c.match(/\bif\s*\((.|\n)+\)\s*\{\s*$/);
     if (m) return applyCodeIf(tree, context, result);
 
     doEval(context, tree.c);
@@ -496,7 +501,7 @@ var Slipdf = (function() {
 
   var apply_p = function(tree, context, result) {
 
-    var r = { text: applyAndReduceChildren(tree, context) };
+    var r = { text: applyAndReduceChildren(tree, context).toString() };
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
