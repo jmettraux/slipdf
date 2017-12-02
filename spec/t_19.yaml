@@ -8,4 +8,6 @@ content:
   style: bravo
 - text: c
   style: [ 'charly', 'carlo' ]
+- text: d
+  style: [ 'delta', 'david', 'doug' ]
 
