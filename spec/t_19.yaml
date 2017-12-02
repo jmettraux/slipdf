@@ -10,4 +10,8 @@ content:
   style: [ 'charly', 'carlo' ]
 - text: d
   style: [ 'delta', 'david', 'doug' ]
+- text: e
+  style: [ 'echo', 'elena', 'eugenie' ]
+- text: f
+  style: [ 'fox', 'fabienne' ]
 
