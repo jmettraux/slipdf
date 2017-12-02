@@ -7,4 +7,5 @@ content:
     body:
     - - { text: '0', style: 'cell0' }
       - { text: '2', style: 'cell1' }
+      - { text: 'quatre', style: [ 'cell2', 'c2' ] }
 

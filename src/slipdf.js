@@ -466,7 +466,7 @@ var Slipdf = (function() {
     return push(result, img);
   };
 
-  var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
+  //var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
     // whiteList
   var TD_RM = { colspan: 'colSpan', rowspan: 'rowSpan' };
     // renameMap
@@ -476,7 +476,8 @@ var Slipdf = (function() {
     var r = applyAndStackChildren(tree, context);
 
     applyStyles(tree, context, r);
-    applyAttributes(tree, context, r, TD_WL, null, TD_RM);
+    //applyAttributes(tree, context, r, TD_WL, null, TD_RM);
+    applyAttributes(tree, context, r, null, null, TD_RM);
 
     return push(result, r);
   }
