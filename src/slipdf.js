@@ -537,6 +537,18 @@ var Slipdf = (function() {
     return r;
   };
 
+  var apply_div = function(tree, context, result) {
+
+    var r = { stack: applyChildren(tree, context, []) };
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    push(result, r);
+
+    return r;
+  };
+
   var apply_content = function(tree, context, result) {
 
     result.content = applyChildren(tree, context, []);
