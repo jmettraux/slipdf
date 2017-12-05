@@ -1,0 +1,12 @@
+---
+pageSize: A4
+styles: {}
+content:
+- text: 'This is template 24'
+- text:
+  - text: 'This is x'
+  - text: 'and this is y'
+    style: 'y'
+  - text: 'and this is z'
+  style: 'x'
+

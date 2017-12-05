@@ -234,7 +234,14 @@ var Slipdf = (function() {
 
   var isStringArray = function(cn) {
 
-    return cn && cn.find(function(c) { return ((typeof c.s) === 'string'); });
+    //return cn && cn.find(function(c) { return ((typeof c.s) === 'string'); });
+    if ( ! cn) return false;
+    var r = false; for (var i = 0, l = cn.length; i < l; i++) {
+      var c = cn[i];
+      if (Array.isArray(c.cn)) return false;
+      if ((typeof c.s) === 'string') r = true;
+    }
+    return r;
   };
 
   var push = function(r, o) {
@@ -519,7 +526,18 @@ var Slipdf = (function() {
 
   var apply_p = function(tree, context, result) {
 
-    var r = { text: toString(applyAndReduceChildren(tree, context)) };
+    var t = applyAndReduceChildren(tree, context);
+      //
+    if (Array.isArray(t)) {
+      t = t.map(function(e) {
+        if ((typeof e) === 'string') return { text: e };
+        return e; })
+    }
+    else if ((typeof t) !== 'string') {
+      t = toString(t);
+    }
+
+    var r = { text: t };
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
