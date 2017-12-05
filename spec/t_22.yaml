@@ -5,8 +5,7 @@ styles:
     pageBreak: before
 content:
 - text: 'This is template 22'
-- stack:
-  - text: 'Related notes'
+- text: 'Related notes'
   pageBreak: before
   style: fdisclaimer
 

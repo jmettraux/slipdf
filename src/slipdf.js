@@ -328,9 +328,9 @@ var Slipdf = (function() {
     tree.cs.forEach(function(c) { addStyle(context, result, c); });
   };
 
-  var applyAttributes = function(
-    tree, context, result, whiteList, blackList, renameMap
-  ) {
+  var applyAttributes = function(tree, context, result, whiteList, blackList) {
+
+    var renameMap = { colspan: 'colSpan', rowspan: 'rowSpan' };
 
     if (tree.as) tree.as
       .forEach(function(kv) {
@@ -446,30 +446,19 @@ var Slipdf = (function() {
     return a;
   };
 
-  var applyAndStackChildren = function(tree, context) {
-
-    var r =
-      isStringArray(tree.cn) ?
-      applyAndReduceChildren(tree, context) :
-      applyChildren(tree, context, []);
-
-    if (Array.isArray(r) && r.length === 1) r = r[0];
-
-    if ((typeof r) === 'string') r = { text: r };
-    else if (Array.isArray(r)) r = { stack: r };
-
-    return r;
-  };
-
   var applyText = function(tree, context, result) {
 
     var t = applyAndReduceChildren(tree, context);
     var tt = (typeof t);
+    var ks = Object.keys(t);
       //
     if (Array.isArray(t)) {
       t = t.map(function(e) {
         if ((typeof e) === 'string') return { text: e };
         return e; })
+    }
+    else if (tt === 'object' && ks.length === 1 && ks[0] === 'text') {
+      t = t.text;
     }
     else if (tt === 'object') {
       t = [ t ];
@@ -497,9 +486,19 @@ var Slipdf = (function() {
   var applyStack = function(tree, context, result) {
 
     var r = applyText(tree, context, result);
+
+    if ((typeof r.text) === 'string') return r;
+
     r.stack = r.text; delete r.text;
 
-    return r;
+    if (r.stack.length > 1) return r;
+
+    var rr = r.stack[0];
+    for (var k in r) { if (k !== 'stack') rr[k] = r[k]; }
+
+    result.splice(-1, 1, rr);
+
+    return rr;
   };
 
   // tag apply functions
@@ -516,21 +515,8 @@ var Slipdf = (function() {
     return push(result, r);
   };
 
-  //var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
-    // whiteList
-  var TD_RM = { colspan: 'colSpan', rowspan: 'rowSpan' };
-    // renameMap
+  var apply_td = applyStack;
 
-  var apply_td = function(tree, context, result) {
-
-    var r = applyAndStackChildren(tree, context);
-
-    applyStyles(tree, context, r);
-    //applyAttributes(tree, context, r, TD_WL, null, TD_RM);
-    applyAttributes(tree, context, r, null, null, TD_RM);
-
-    return push(result, r);
-  }
 
   var apply_tr = function(tree, context, result) {
 
@@ -574,15 +560,7 @@ var Slipdf = (function() {
     return r;
   };
 
-  var apply_li = function(tree, context, result) {
-
-    var r = applyAndStackChildren(tree, context);
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r);
-
-    return push(result, r);
-  };
+  var apply_li = applyText;
 
   var apply_ol = applyTaggedText;
   var apply_ul = applyTaggedText;
