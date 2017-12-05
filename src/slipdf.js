@@ -450,7 +450,7 @@ var Slipdf = (function() {
 
     var t = applyAndReduceChildren(tree, context);
     var tt = (typeof t);
-    var ks = Object.keys(t);
+    var ks = Object.keys(t || 1);
       //
     if (Array.isArray(t)) {
       t = t.map(function(e) {
