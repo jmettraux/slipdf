@@ -464,13 +464,17 @@ var Slipdf = (function() {
   var applyText = function(tree, context, result) {
 
     var t = applyAndReduceChildren(tree, context);
+    var tt = (typeof t);
       //
     if (Array.isArray(t)) {
       t = t.map(function(e) {
         if ((typeof e) === 'string') return { text: e };
         return e; })
     }
-    else if ((typeof t) !== 'string') {
+    else if (tt === 'object') {
+      t = [ t ];
+    }
+    else if (tt !== 'string') {
       t = toString(t);
     }
 
@@ -482,18 +486,20 @@ var Slipdf = (function() {
     push(result, r); return r;
   };
 
+  var applyTaggedText = function(tree, context, result) {
+
+    var r = applyText(tree, context, result);
+    r[tree.t] = r.text; delete r.text;
+
+    return r;
+  };
+
   var applyStack = function(tree, context, result) {
 
-    var t = 'stack';
-    if ([ 'ol', 'ul' ].includes(tree.t)) t = tree.t;
+    var r = applyText(tree, context, result);
+    r.stack = r.text; delete r.text;
 
-    var r = {};
-    r[t] = applyChildren(tree, context, []);
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r);
-
-    push(result, r); return r;
+    return r;
   };
 
   // tag apply functions
@@ -578,8 +584,8 @@ var Slipdf = (function() {
     return push(result, r);
   };
 
-  var apply_ol = applyStack;
-  var apply_ul = applyStack;
+  var apply_ol = applyTaggedText;
+  var apply_ul = applyTaggedText;
 
   var apply_p = applyText;
   var apply_span = applyText;
@@ -591,6 +597,9 @@ var Slipdf = (function() {
     result.content = applyChildren(tree, context, []);
   };
   var apply_body = apply_content;
+
+  var apply_footer = applyHeaderOrFooter;
+  var apply_header = applyHeaderOrFooter;
 
   var apply_colours = function(tree, context, result) {
 
@@ -612,9 +621,6 @@ var Slipdf = (function() {
         result.styles[c.t] = applyAndReduceChildren(c, context, result);
       });
   };
-
-  var apply_footer = applyHeaderOrFooter;
-  var apply_header = applyHeaderOrFooter;
 
   var apply_document = function(tree, context, result) {
 
