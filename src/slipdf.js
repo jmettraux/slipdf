@@ -252,7 +252,7 @@ var Slipdf = (function() {
       .replace(/,\n/g, ',');
 
     if ( ! (
-      code.match(/\s*(if|for)/))
+      code.match(/\s*\b(if|for)\b/))
     ) {
       code = '(' + code + ')';
     }
