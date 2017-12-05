@@ -234,8 +234,8 @@ var Slipdf = (function() {
 
   var isStringArray = function(cn) {
 
-    //return cn && cn.find(function(c) { return ((typeof c.s) === 'string'); });
     if ( ! cn) return false;
+
     var r = false; for (var i = 0, l = cn.length; i < l; i++) {
       var c = cn[i];
       if (Array.isArray(c.cn)) return false;
@@ -461,6 +461,41 @@ var Slipdf = (function() {
     return r;
   };
 
+  var applyText = function(tree, context, result) {
+
+    var t = applyAndReduceChildren(tree, context);
+      //
+    if (Array.isArray(t)) {
+      t = t.map(function(e) {
+        if ((typeof e) === 'string') return { text: e };
+        return e; })
+    }
+    else if ((typeof t) !== 'string') {
+      t = toString(t);
+    }
+
+    var r = { text: t };
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    push(result, r); return r;
+  };
+
+  var applyStack = function(tree, context, result) {
+
+    var t = 'stack';
+    if ([ 'ol', 'ul' ].includes(tree.t)) t = tree.t;
+
+    var r = {};
+    r[t] = applyChildren(tree, context, []);
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    push(result, r); return r;
+  };
+
   // tag apply functions
 
   var apply_img = function(tree, context, result) {
@@ -524,28 +559,6 @@ var Slipdf = (function() {
       result[tree.k] = v;
   };
 
-  var apply_p = function(tree, context, result) {
-
-    var t = applyAndReduceChildren(tree, context);
-      //
-    if (Array.isArray(t)) {
-      t = t.map(function(e) {
-        if ((typeof e) === 'string') return { text: e };
-        return e; })
-    }
-    else if ((typeof t) !== 'string') {
-      t = toString(t);
-    }
-
-    var r = { text: t };
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r);
-
-    push(result, r); return r;
-  };
-  var apply_span = apply_p;
-
   var apply_a = function(tree, context, result) {
 
     var r = apply_p(tree, context, result);
@@ -553,20 +566,6 @@ var Slipdf = (function() {
     r.link = r.href; delete r.href;
 
     return r;
-  };
-
-  var apply_div = function(tree, context, result) {
-
-    var t = 'stack';
-    if ([ 'ol', 'ul' ].includes(tree.t)) t = tree.t;
-
-    var r = {};
-    r[t] = applyChildren(tree, context, []);
-
-    applyStyles(tree, context, r);
-    applyAttributes(tree, context, r);
-
-    push(result, r); return r;
   };
 
   var apply_li = function(tree, context, result) {
@@ -579,8 +578,13 @@ var Slipdf = (function() {
     return push(result, r);
   };
 
-  var apply_ol = apply_div;
-  var apply_ul = apply_div;
+  var apply_ol = applyStack;
+  var apply_ul = applyStack;
+
+  var apply_p = applyText;
+  var apply_span = applyText;
+
+  var apply_div = applyStack;
 
   var apply_content = function(tree, context, result) {
 
