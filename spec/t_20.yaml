@@ -4,7 +4,7 @@ content:
 - text: 'This is template 20'
 - text: 'This is a'
 - text: link
-  target: _blank
   link: 'http://example.com'
+  target: _blank
 - text: '.'
 

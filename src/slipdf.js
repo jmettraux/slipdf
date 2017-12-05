@@ -458,12 +458,14 @@ var Slipdf = (function() {
 
   var apply_img = function(tree, context, result) {
 
-    var img = {};
-    applyStyles(tree, context, img);
-    applyAttributes(tree, context, img);
-    img.image = img.src; delete img.src;
+    var r = {};
 
-    return push(result, img);
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    r.image = r.src; delete r.src;
+
+    return push(result, r);
   };
 
   //var TD_WL = 'colspan rowspan colSpan rowSpan'.split(' ');
@@ -522,9 +524,7 @@ var Slipdf = (function() {
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
 
-    push(result, r);
-
-    return r;
+    push(result, r); return r;
   };
   var apply_span = apply_p;
 
@@ -548,9 +548,7 @@ var Slipdf = (function() {
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
 
-    push(result, r);
-
-    return r;
+    push(result, r); return r;
   };
 
   var apply_li = function(tree, context, result) {
