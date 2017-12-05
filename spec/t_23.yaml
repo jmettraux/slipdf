@@ -1,0 +1,13 @@
+---
+pageSize: A4
+styles: {}
+content:
+- text: 'This is template 23'
+- ul:
+  - text: alpha
+  - text: bravo
+- ol:
+  - text: one
+    style: nada
+  - text: two
+

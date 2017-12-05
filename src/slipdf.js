@@ -539,7 +539,11 @@ var Slipdf = (function() {
 
   var apply_div = function(tree, context, result) {
 
-    var r = { stack: applyChildren(tree, context, []) };
+    var t = 'stack';
+    if ([ 'ol', 'ul' ].includes(tree.t)) t = tree.t;
+
+    var r = {};
+    r[t] = applyChildren(tree, context, []);
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
@@ -548,6 +552,19 @@ var Slipdf = (function() {
 
     return r;
   };
+
+  var apply_li = function(tree, context, result) {
+
+    var r = applyAndStackChildren(tree, context);
+
+    applyStyles(tree, context, r);
+    applyAttributes(tree, context, r);
+
+    return push(result, r);
+  };
+
+  var apply_ol = apply_div;
+  var apply_ul = apply_div;
 
   var apply_content = function(tree, context, result) {
 
