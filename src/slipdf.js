@@ -523,6 +523,18 @@ var Slipdf = (function() {
     applyAttributes(tree, context, r);
 
     push(result, r);
+
+    return r;
+  };
+  var apply_span = apply_p;
+
+  var apply_a = function(tree, context, result) {
+
+    var r = apply_p(tree, context, result);
+
+    r.link = r.href; delete r.href;
+
+    return r;
   };
 
   var apply_content = function(tree, context, result) {
