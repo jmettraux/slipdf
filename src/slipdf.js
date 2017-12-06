@@ -276,8 +276,12 @@ var Slipdf = (function() {
     try {
       return func.apply(null, args);
     } catch(e) {
-      throw new Error(
-        "slipdf couldn't eval >" + code + "< (cause: >" + e.toString() + "<)");
+      //throw new Error(
+      //  "slipdf couldn't eval >" + code + "<" +
+      //  " (cause: >" + e.toString() + "<)");
+      e.message =
+        "slipdf couldn't eval >" + code + "< (cause: >" + e.toString() + "<)";
+      throw e;
     }
   };
 
