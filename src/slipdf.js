@@ -332,19 +332,14 @@ var Slipdf = (function() {
     tree.cs.forEach(function(c) { addStyle(context, result, c); });
   };
 
-  var applyAttributes = function(tree, context, result, whiteList, blackList) {
+  var RENAME_MAP = { colspan: 'colSpan', rowspan: 'rowSpan' };
 
-    var renameMap = { colspan: 'colSpan', rowspan: 'rowSpan' };
+  var applyAttributes = function(tree, context, result) {
 
     if (tree.as) tree.as
       .forEach(function(kv) {
-        //
-        var k = kv[0]; var v = kv[1];
-        //
-        if (blackList && blackList.includes(k)) return;
-        if (whiteList && ! whiteList.includes(k)) return;
-        if (renameMap) k = renameMap[k] || k;
-        //
+        var k = kv[0]; k = RENAME_MAP[k] || k;
+        var v = kv[1];
         apply({ t: 'attribute', k: k, cn: v }, context, result); });
   };
 
@@ -534,11 +529,14 @@ var Slipdf = (function() {
     var table = {};
     var r = { table: table };
 
-    var tableAtts = [ 'widths', 'heights', 'headerRows' ];
-
     applyStyles(tree, context, r);
-    applyAttributes(tree, context, r, null, tableAtts); // whitelist / blacklist
-    applyAttributes(tree, context, table, tableAtts, null); // wl / bl
+    applyAttributes(tree, context, r);
+
+    [
+      'widths', 'heights', 'headerRows'
+    ].forEach(function(k) {
+      if (r.hasOwnProperty(k)) { table[k] = r[k]; delete r[k]; }
+    });
 
     table.body = applyChildren(tree, context, []);
 
