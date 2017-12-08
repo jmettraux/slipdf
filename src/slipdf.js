@@ -651,6 +651,7 @@ var Slipdf = (function() {
       };
     img.src = uri; // which triggers the loading
   };
+  this.addDataURL = self.addDataUrl;
 
   this.debug = function(s, debugLevel) {
 

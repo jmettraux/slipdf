@@ -54,6 +54,26 @@ examplePdf.open();
   // grab the buffer and deal with it ...
 ```
 
+### images
+
+Images are to be added first to the Slipdf library itself, for example:
+
+```js
+Slipdf.addDataUrl('darts', '/images/gecbl/darts.png');
+Slipdf.addDataUrl('shield', '/images/shield.jpg');
+Slipdf.addDataUrl('office', 'https://images.example.org/office.png');
+```
+
+Slipdf then fetches the images and turns them into dataURLs. Those URLs can then be referenced in the Slim document as in:
+
+```slim
+  p
+    | This is our new office:
+    img src=(dataUrls.office)
+```
+
+Although mimicking the img HTML tag, the slip img tag accepts the PdfMake attributes (width, height, fit, ...) see under "Images" in the [PdfMake documentation](http://pdfmake.org/#/gettingstarted).
+
 
 ## License
 
