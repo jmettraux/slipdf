@@ -1,0 +1,14 @@
+---
+pageSize: A4
+styles:
+  tx:
+    widths: [ 100, '*' ]
+content:
+- text: 'This is template 25'
+- table:
+    widths: [ 100, '*' ]
+    body:
+    - - text: a
+      - text: b
+  style: tx
+
