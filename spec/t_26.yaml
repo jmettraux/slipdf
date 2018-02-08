@@ -1,0 +1,18 @@
+---
+pageSize: A4
+styles:
+  tvalue:
+    border: [ false, false, false, false ]
+    fillColor: white
+content:
+- text: 'This is template 26'
+- table:
+    body:
+    - - text: Special Features
+        style: tkey
+    - - text: ''
+        border: [ false, false, false, false ]
+        fillColor: 'white'
+        style: tvalue
+  style: ttext
+

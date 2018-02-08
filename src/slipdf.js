@@ -453,9 +453,13 @@ var Slipdf = (function() {
     var ks = Object.keys(t || 1);
       //
     if (Array.isArray(t)) {
-      t = t.map(function(e) {
-        if ((typeof e) === 'string') return { text: e };
-        return e; })
+      t =
+        t.map(function(e) {
+          if ((typeof e) === 'string') return { text: e };
+          return e; })
+    }
+    else if (t === null) {
+      t = '';
     }
     else if (tt === 'object' && ks.length === 1 && ks[0] === 'text') {
       t = t.text;
