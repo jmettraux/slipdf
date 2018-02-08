@@ -448,6 +448,7 @@ var Slipdf = (function() {
   var applyText = function(tree, context, result) {
 
     var t = applyAndReduceChildren(tree, context);
+
     var tt = (typeof t);
     var ks = Object.keys(t || 1);
       //
