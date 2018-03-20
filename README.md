@@ -104,6 +104,19 @@ Good:
       td c
 ```
 
+It doesn't matter with colspan at the right of the table:
+```slim
+  table
+    tr
+      td colspan=3 A
+      / no need for a ghost td
+      / no need for a ghost td
+    tr
+      td a
+      td b
+      td c
+```
+
 
 ## License
 
