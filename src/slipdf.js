@@ -521,7 +521,6 @@ var Slipdf = (function() {
 
   var apply_td = applyStack;
 
-
   var apply_tr = function(tree, context, result) {
 
     return push(result, applyChildren(tree, context, []));

@@ -75,6 +75,36 @@ Slipdf then fetches the images and turns them into dataURLs. Those URLs can then
 Although mimicking the img HTML tag, the slip img tag accepts the PdfMake attributes (width, height, fit, ...) see under "Images" in the [PdfMake documentation](http://pdfmake.org/#/gettingstarted).
 
 
+### tables
+
+Warning about tables and `colspan` and `rowspan`: pdfmake requires us to have the overridden `td` cells.
+
+Bad (will fail badly):
+```slim
+  table
+    tr
+      td colspan=2 A
+      td B
+    tr
+      td a
+      td b
+      td c
+```
+
+Good:
+```slim
+  table
+    tr
+      td colspan=2 A
+      td (will get overriden)
+      td B
+    tr
+      td a
+      td b
+      td c
+```
+
+
 ## License
 
 MIT, see [LICENSE.txt](LICENSE.txt)
