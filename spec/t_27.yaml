@@ -1,0 +1,9 @@
+---
+pageSize: A4
+background: 'background function jlen75'
+footer:
+  - text: page 1 of 1
+    style: footer
+content:
+  - text: This is template 27
+

@@ -303,7 +303,8 @@ var Slipdf = (function() {
     };
     if (debugOn) {
       f.toJSON = function() {
-        return 'footer function jlen' + JSON.stringify(tree.cn[0].cn).length;
+        return (
+          '' +tree.t + ' function jlen' + JSON.stringify(tree.cn[0].cn).length);
       }
     }
 
@@ -412,8 +413,12 @@ var Slipdf = (function() {
 
     var c0 =
       tree.cn[0];
-    var m = ((c0.x === '=' && c0.c) || '')
-      .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/)
+    var mb = ((c0.x === '=' && c0.c) || '')
+      .match(/\s*function[ \t]*\(\s*([^,\)]+)\s*\)\s*{\s*/);
+    var mf = ((c0.x === '=' && c0.c) || '')
+      .match(/\s*function[ \t]*\(\s*([^,]+),\s*([^,]+)\s*\)\s*{\s*/);
+
+    var m = mb || mf;
 
     result[k] =
       m ?
@@ -584,6 +589,7 @@ var Slipdf = (function() {
 
   var apply_footer = applyHeaderOrFooter;
   var apply_header = applyHeaderOrFooter;
+  var apply_background = applyHeaderOrFooter;
 
   var apply_colours = function(tree, context, result) {
 
