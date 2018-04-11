@@ -17,12 +17,12 @@ pkg_plain:
 	cp pkg/$(NAME)-$(VERSION).js pkg/$(NAME)-$(VERSION)-$(SHA).js
 
 pkg_mini:
-	mkdir -p pkg
-	printf "/* $(NAME)-$(VERSION).min.js | MIT license: http://github.com/jmettraux/$(NAME)/LICENSE.txt */" > pkg/$(NAME)-$(VERSION).min.js
-	#cat src/$(NAME).js | jsmin >> pkg/$(NAME)-$(VERSION).min.js
-	java -jar tools/closure-compiler.jar --js src/$(NAME).js >> pkg/$(NAME)-$(VERSION).min.js
-	echo "/* minified from commit $(SHA) on $(NOW) */" >> pkg/$(NAME)-$(VERSION).min.js
-	cp pkg/$(NAME)-$(VERSION).min.js pkg/$(NAME)-$(VERSION)-$(SHA).min.js
+	#mkdir -p pkg
+	#printf "/* $(NAME)-$(VERSION).min.js | MIT license: http://github.com/jmettraux/$(NAME)/LICENSE.txt */" > pkg/$(NAME)-$(VERSION).min.js
+	##cat src/$(NAME).js | jsmin >> pkg/$(NAME)-$(VERSION).min.js
+	#java -jar tools/closure-compiler.jar --js src/$(NAME).js >> pkg/$(NAME)-$(VERSION).min.js
+	#echo "/* minified from commit $(SHA) on $(NOW) */" >> pkg/$(NAME)-$(VERSION).min.js
+	#cp pkg/$(NAME)-$(VERSION).min.js pkg/$(NAME)-$(VERSION)-$(SHA).min.js
 
 pkg: pkg_plain pkg_mini
 
