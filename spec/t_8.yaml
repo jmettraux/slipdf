@@ -12,6 +12,8 @@ content:
         - - text: 'Row 1, Cell 0 and 1'
             style: banner
             colSpan: 2
+        - - text: ''
+          - text: ''
         - - text: 'Row 2, Cell 0 and 1'
             style: banner
             colSpan: 2
