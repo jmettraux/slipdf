@@ -711,6 +711,7 @@ var Slipdf = (function() {
       context.dataUrls = dataUrls;
 
       context.ffalse = [ false, false, false, false ];
+      context.fzero = [ 0, 0, 0, 0 ];
 
       return apply(tree, context, {}); };
   };
