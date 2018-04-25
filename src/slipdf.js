@@ -713,6 +713,8 @@ var Slipdf = (function() {
       context.ffalse = [ false, false, false, false ];
       context.fzero = [ 0, 0, 0, 0 ];
 
+      context.root = context; // ;-)
+
       return apply(tree, context, {}); };
   };
 
