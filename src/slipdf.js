@@ -620,6 +620,17 @@ var Slipdf = (function() {
       });
   };
 
+  var apply_images = function(tree, context, result) {
+
+    result.images = {};
+    context._images = result.images;
+
+    if (tree.cn) tree.cn
+      .forEach(function(c) {
+        result.images[c.t] = applyAndReduceChildren(c, context, result);
+      });
+  };
+
   var apply_document = function(tree, context, result) {
 
     applyAttributes(tree, context, result);
