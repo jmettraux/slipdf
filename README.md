@@ -74,6 +74,41 @@ Slipdf then fetches the images and turns them into dataURLs. Those URLs can then
 
 Although mimicking the img HTML tag, the slip img tag accepts the PdfMake attributes (width, height, fit, ...) see under "Images" in the [PdfMake documentation](http://pdfmake.org/#/gettingstarted).
 
+Using `img src=(dataUrls.office)` is fine, but if the `img` is wrapped in a loop, the dataURL gets copied N times and the size of the resulting PDF grows. It is better to use the `images` "registration" tag above in the slip document and then to reference the image in the `img` src, as in:
+
+```slim
+document(
+  pageSize='A4'
+  pageOrientation='landscape'
+  pageMargins=[ 14, 21, 14, 7 * 14 ]
+  defaultStyle={ font: 'HelveticaNeue' }
+)
+
+  colours
+    blue= '#002567'
+    white= '#ffffff'
+
+  images
+    foggy= dataUrls.foggy
+    star= dataUrls.star
+
+  styles
+    entry= { color: colours.white, fillColor: colours.blue, fontSize: 21 }
+
+  background
+    div
+      img src="foggy" width=(1260)
+
+  content
+    - entries.forEach(function(e, i) {
+      p.entry
+        | * #{e.name}
+        - if e.starry
+          img src="star"
+```
+
+Even if there are hundreds of starry entries, the weight of the star image (as a dataURL) is only counted once in the resulting PDF.
+
 
 ### tables
 
