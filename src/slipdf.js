@@ -287,11 +287,19 @@ var Slipdf = (function() {
 
   // generic apply functions
 
+  var makeContext = function(parentContext) {
+
+    var ctx = {};
+    for (var k in parentContext) { ctx[k] = parentContext[k]; }
+
+    return ctx;
+  };
+
   var applyFooterFunction = function(tree, context, result, pk, tpk) {
 
     var f = function(p, tp) {
 
-      var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+      var ctx = makeContext(context);
       ctx[pk] = p;
       ctx[tpk] = tp;
 
@@ -346,7 +354,7 @@ var Slipdf = (function() {
 
   var applyCodeIf = function(tree, context, result) {
 
-    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    var ctx = makeContext(context);
     ctx.__fun = function() {
       applyChildren(tree, ctx, result); };
     doEval(
@@ -356,7 +364,7 @@ var Slipdf = (function() {
 
   var applyCodeFor = function(tree, context, result, match) {
 
-    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    var ctx = makeContext(context);
     ctx.__fun = function() {
       applyChildren(tree, ctx, result); };
     doEval(
@@ -367,7 +375,7 @@ var Slipdf = (function() {
   var applyCodeFunction = function(tree, context, result, match) {
 
     var as = match[1].trim().split(/\s*,\s*/);
-    var ctx = {}; for (var k in context) { ctx[k] = context[k]; }
+    var ctx = makeContext(context);
     ctx.__fun = function(args) {
       as.forEach(function(a, i) { ctx[a] = args[i]; });
       applyChildren(tree, ctx, result); };
