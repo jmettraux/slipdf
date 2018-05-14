@@ -550,7 +550,7 @@ var Slipdf = (function() {
     applyAttributes(tree, context, r);
 
     [
-      'widths', 'heights', 'headerRows'
+      'widths', 'heights', 'headerRows', 'keepWithHeaderRows', 'dontBreakRows'
     ].forEach(function(k) {
       if (r.hasOwnProperty(k)) { table[k] = r[k]; delete r[k]; }
     });
