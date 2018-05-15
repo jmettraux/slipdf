@@ -303,10 +303,6 @@ var Slipdf = (function() {
       ctx[pk] = p;
       ctx[tpk] = tp;
 
-//var r = apply(tree.cn[0], ctx, []);
-//clog(r);
-//clog(JSON.parse(JSON.stringify(r)));
-//return r;
       return applyChildren(tree.cn[0], ctx, []);
     };
     if (debugOn) {
@@ -325,7 +321,15 @@ var Slipdf = (function() {
 
     ss.forEach(function(s) {
       var h = (context._styles || {})[s]
-      if (h) for (var k in h) { result[k] = h[k]; } });
+      //if (h) for (var k in h) { result[k] = h[k]; } });
+      if (h) for (var k in h) {
+        if (
+          (k === 'width' && result.image) ||
+          (k === 'widths' && result.table) ||
+          (k.match(/^margin/) && result.table) ||
+          k.match(/^border/)
+        ) { result[k] = h[k]; }
+      } });
 
     var css = result.style || []; if ( ! Array.isArray(css)) css = [ css ];
     css = css.concat(ss);
@@ -524,10 +528,10 @@ var Slipdf = (function() {
 
     var r = {};
 
-    applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
-
     r.image = r.src; delete r.src;
+
+    applyStyles(tree, context, r);
 
     return push(result, r);
   };

@@ -4,6 +4,7 @@
 
 ## slipdf.js 1.0.1  not yet released
 
+* Only copy the necessary styles
 * Acknowledge table attributes 'keepWithHeaderRows' and 'dontBreakRows'
 * Introduce images
 * Introduce fzero (along ffalse)
