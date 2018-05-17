@@ -326,6 +326,7 @@ var Slipdf = (function() {
       //if (h) for (var k in h) { result[k] = h[k]; } });
       if (h) for (var k in h) {
         if (
+          k === 'pageBreak' ||
           (k === 'width' && result.image) ||
           (k === 'widths' && result.table) ||
           (k.match(/^margin/) && result.table) ||

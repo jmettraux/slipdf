@@ -12,7 +12,6 @@ content:
         style: tkey
     - - text: ''
         border: [ false, false, false, false ]
-        fillColor: 'white'
         style: tvalue
   style: ttext
 
