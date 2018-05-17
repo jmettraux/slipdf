@@ -4,6 +4,7 @@
 
 ## slipdf.js 1.0.1  not yet released
 
+* Introduce Slipdf.ready(callback) and .addSlip(uri)
 * Only copy the necessary styles
 * Acknowledge table attributes 'keepWithHeaderRows' and 'dontBreakRows'
 * Introduce images

@@ -219,7 +219,9 @@ var Slipdf = (function() {
 
   var VERSION = '1.0.1';
 
+  var readies = [];
   var dataUrls = {};
+  var slips = {};
 
   // protected
 
@@ -667,24 +669,68 @@ var Slipdf = (function() {
     return result;
   };
 
+  var triggerReadies = function() {
+
+    if ( ! readies) return;
+    if (Object.values(dataUrls).includes(false)) return;
+    if (Object.values(slips).includes(false)) return;
+
+    var rs = readies; readies = false;
+
+    rs.forEach(function(cb) { cb() });
+  };
+
   // public
+
+  this.ready = function(callback) {
+
+    if (readies) readies.push(callback);
+    else callback();
+  };
 
   this.addDataUrl = function(key, uri) {
 
-    if ((typeof Image) === "undefined") { dataUrls[key] = uri; return; }
+    dataUrls[key] = false;
 
-    var img = new Image();
-    img.onload =
-      function() {
-        var can = document.createElement('canvas');
-        can.width = this.naturalWidth;
-        can.height = this.naturalHeight;
-        can.getContext('2d').drawImage(this, 0, 0);
-        dataUrls[key] = can.toDataURL('image/png');
-      };
-    img.src = uri; // which triggers the loading
+    if (
+      (typeof Image) === 'undefined' &&
+      (typeof importScripts) === 'undefined'
+    ) { dataUrls[key] = uri; return; }
+
+    fetch(uri)
+      .then(function(res) {
+        return res.blob();
+      })
+      .then(function(blb) {
+        var r = new FileReader();
+        r.onloadend = function() {
+          dataUrls[key] = r.result;
+          triggerReadies();
+        };
+        r.readAsDataURL(blb);
+      });
   };
   this.addDataURL = self.addDataUrl;
+
+  this.addSlip = function(uri) {
+
+    var name = uri.split('/').slice(-1)[0].split('.')[0];
+    slips[name] = false;
+
+    fetch(uri)
+      .then(function(res) {
+        return res.text();
+      })
+      .then(function(txt) {
+        slips[name] = self.compile(txt);
+        triggerReadies();
+      });
+  };
+
+  this.getSlip = function(name) {
+
+    return slips[name];
+  };
 
   this.debug = function(s, debugLevel) {
 
