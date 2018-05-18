@@ -730,7 +730,10 @@ var Slipdf = (function() {
 
   this.getSlip = function(name) {
 
-    return slips[name];
+    var s = slips[name];
+
+    if ( ! s) throw 'no slip named "' + name + '"';
+    return s;
   };
 
   this.debug = function(s, debugLevel) {
