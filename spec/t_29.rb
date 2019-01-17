@@ -5,9 +5,9 @@
   'images' => {},
   'content' => [
     { 'text' => 'This is template 29' },
-    { 'text' => " this\n\n that" },
+    { 'text' => " this\n that" },
     { 'text' => 'aa' },
-    "\n\n",
+    "\n",
     { 'text' => 'bb' },
   ]
 }

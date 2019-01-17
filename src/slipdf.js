@@ -588,9 +588,7 @@ var Slipdf = (function() {
 
   var apply_br = function(tree, context, result) {
 
-    //var r = { text: '\n\n' };
-    //push(result, r); return r;
-    push(result, '\n\n'); return result;
+    push(result, '\n'); return result;
   };
 
   var apply_li = applyText;
