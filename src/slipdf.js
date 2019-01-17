@@ -586,6 +586,13 @@ var Slipdf = (function() {
     return r;
   };
 
+  var apply_br = function(tree, context, result) {
+
+    //var r = { text: '\n\n' };
+    //push(result, r); return r;
+    push(result, '\n\n'); return result;
+  };
+
   var apply_li = applyText;
 
   var apply_ol = applyTaggedText;
