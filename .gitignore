@@ -6,6 +6,7 @@
 .rspec.out
 .viminfo
 .vimrc
+.vimgrep
 .todo.md
 pkg/
 
