@@ -1,6 +1,8 @@
 
 source 'https://rubygems.org'
 
-gem 'execjs'
+#gem 'execjs'
+gem 'ferrum'
+
 gem 'rspec'
 

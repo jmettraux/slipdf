@@ -698,6 +698,8 @@ var Slipdf = (function() {
 
     dataUrls[key] = false;
 
+    if (debugOn) { dataUrls[key] = uri; return; }
+
     if (
       (typeof Image) === 'undefined' &&
       (typeof importScripts) === 'undefined'
