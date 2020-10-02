@@ -57,16 +57,17 @@ module Helpers
     JSON.parse(j)
   end
 
-  def print_tree(n, indent='')
+  def print_tree(n, indent=0)
 
-    tc = "[1;30m" # tree color
-    sc0 = "[1;33m" # string color
-    sc1 = "[0;33m" # string color
-    c1 = "[0;32m" # result 1 color
-    rc = "[0;0m" # reset color
+    tc =  "[0;90m" # tree color
+    sc0 = "[1;33m[4m" # string color 0
+    sc1 = "[0;33m" # string color 1
+    c1 =  "[0;32m" # result 1 color
+    rc =  "[0;0m" # reset color
     rdc = "[1;31m" # red color
+    nc =  "[0;97m" # name color
 
-    if indent == ''
+    if indent == 0
       n['input']['string']
         .split("\n")
         .each { |l| puts "#{tc}  │#{sc1}#{l}#{rc}" }
@@ -74,15 +75,30 @@ module Helpers
 
     o, l = n['offset'], n['length']
     s = n['input']['string'][o..-1]
-    r = n['result'].to_s; r = "#{c1}#{r}#{tc}" if r == '1'
+    res = n['result']
+    r = res.to_s; r = "#{c1}#{r}#{tc}" if res == 1
 
     mw = IO.console.winsize[1] rescue 80
 
-    sio = StringIO.new
+    na = n['name']; na = na ? "#{nc}#{na}#{tc}" : '(null)'
+
+    ind = (0..indent)
+      .inject('') { |ss, i|
+        ss +
+          case i % 3
+          when 0 then '│ '
+          when 1 then '· '
+          else '· '; end }
+
+    sio =
+      StringIO.new
     sio <<
-      indent << tc << (n['name'] || '(null)') <<
-      ' ' << r << ' ' <<
-      n['parter'] << "(#{o}, #{l})"
+      ind << tc << na << ' ' << r << ' ' << n['parter'] << "(#{o}, #{l})"
+
+    if res != 1
+      #sc0 = "[1;90m";
+      sc1 = "[0;90m"
+    end
 
     mw = mw - sio.length - 3 - 10; mw = 0 if mw < 0
     s = s[0, mw]
@@ -98,7 +114,7 @@ module Helpers
 
     puts sio.string
 
-    n['children'].each { |c| print_tree(c, indent + '  ') }
+    n['children'].each { |c| print_tree(c, indent + 1) }
 
     if indent == ''
       il = n['input']['string'].length
