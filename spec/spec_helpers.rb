@@ -42,7 +42,7 @@ module Helpers
 
     $sources ||=
       begin
-        %w[ spec/jaabro-1.1.0.min.js src/slipdf.js spec/helpers.js ]
+        %w[ spec/jaabro-1.3.1.com.js src/slipdf.js spec/helpers.js ]
           .collect { |path| File.read(path) }
           .join(';')
       end
@@ -116,7 +116,7 @@ module Helpers
 
     n['children'].each { |c| print_tree(c, indent + 1) }
 
-    if indent == ''
+    if indent == 0
       il = n['input']['string'].length
       tl = n['length']; tl = "#{rdc}#{tl}#{rc}" if tl != il
       puts "├─ input length:  #{il}"
