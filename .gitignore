@@ -4,9 +4,7 @@
 .bxsinfo.yaml
 .errors
 .rspec.out
-.viminfo
-.vimrc
-.vimgrep
+.vim*
 .todo.md
 pkg/
 
