@@ -42,7 +42,7 @@ module Helpers
 
     $sources ||=
       begin
-        %w[ spec/jaabro-1.3.1.com.js src/slipdf.js spec/helpers.js ]
+        %w[ spec/jaabro-1.4.0.com.js src/slipdf.js spec/helpers.js ]
           .collect { |path| File.read(path) }
           .join(';')
       end

@@ -1,6 +1,6 @@
-/* jaabro-1.3.1.com.js | MIT license: https://github.com/jmettraux/jaabro/LICENSE.txt */
+/* jaabro-1.4.0.com.js | MIT license: https://github.com/jmettraux/jaabro/LICENSE.txt */
 
-var Jaabro = { VERSION: '1.3.1' };
+var Jaabro = { VERSION: '1.4.0' };
 Jaabro.Input = {};
 Jaabro.Input.slice = function(offset, length) {
 if (offset === undefined || offset === null) offset = this.offset;
@@ -216,6 +216,7 @@ var cr = parser(input);
 r.children.push(cr);
 if (cr.result !== 1) break;
 count = count + 1;
+if (cr.length < 1) break;
 if (max > 0 && count === max) break;}
 if (count >= min && (max < 1 || count <= max)) {
 r.result = 1;
@@ -262,9 +263,12 @@ if (cr.result !== 1) r.result = 0;}
 if (r.result === 1) {
 var i = 1;
 var count = 0;
+var emptyStack = 0;
 while (true) {
 i = (i + 1) % 2;
 cr = (i === 0 ? eltp : sepp)(input);
+emptyStack = cr.length == 0 ? emptyStack + 1 : 0;
+if (emptyStack > 1) cr.result = 0;
 r.children.push(cr);
 if (cr.result !== 1) {
 if (i === 0 && count > 0) {
@@ -343,4 +347,4 @@ if (opts.prune !== false && t.result !== 1) return null;
 if (t.parter === 'all') t = t.children[0];
 if (opts.rewrite !== false) return this.rewrite(t);
 return t;};
-/* compacted from commit 3e37cac on Fri Oct  2 18:34:02 JST 2020 */
+/* compacted from commit 7371a86 on Sat Oct  3 17:33:43 JST 2020 */
