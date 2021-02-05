@@ -52,6 +52,8 @@ examplePdf.open();
   // open the PDF immediately, in the browser
 //examplePdf.getBuffer(function(exampleBuffer) { /* ... */ });
   // grab the buffer and deal with it ...
+examplePdf.getDataUrl(function(dataUrl) { /* ... */ });
+  // turn the PDF into a data URI and ...
 ```
 
 ### images
