@@ -4,6 +4,8 @@
 
 ## slipdf.js 1.1.0  not yet released
 
+* Introduce `qr`
+
 
 ## slipdf.js 1.0.1  released sometimes in 2020
 

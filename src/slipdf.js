@@ -465,7 +465,7 @@ var Slipdf = (function() {
     return a;
   };
 
-  var applyText = function(tree, context, result) {
+  var applyTex = function(tree, context, result) {
 
     var t = applyAndReduceChildren(tree, context);
 
@@ -495,6 +495,13 @@ var Slipdf = (function() {
 
     applyStyles(tree, context, r);
     applyAttributes(tree, context, r);
+
+    return r;
+  };
+
+  var applyText = function(tree, context, result) {
+
+    var r = applyTex(tree, context, result);
 
     push(result, r); return r;
   };
@@ -526,6 +533,14 @@ var Slipdf = (function() {
   };
 
   // tag apply functions
+
+  var apply_qr = function(tree, context, result) {
+
+    var r = applyTex(tree, context, result);
+    r[tree.t] = r.text; delete r.text;
+
+    push(result, r); return r;
+  };
 
   var apply_img = function(tree, context, result) {
 
