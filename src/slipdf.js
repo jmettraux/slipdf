@@ -307,7 +307,7 @@ var Slipdf = (function() {
 
       return applyChildren(tree.cn[0], ctx, []);
     };
-    if (debugOn) {
+    if (debugOn()) {
       f.toJSON = function() {
         return (
           '' +tree.t + ' function jlen' + JSON.stringify(tree.cn[0].cn).length);
@@ -717,7 +717,7 @@ var Slipdf = (function() {
     dataUrls[key] = false;
 
     if (uri.match(/^data:/)) { dataUrls[key] = uri; return; }
-    if (debugOn) { dataUrls[key] = uri; return; }
+    if (debugOn()) { dataUrls[key] = uri; return; }
 
     if (
       (typeof Image) === 'undefined' &&
