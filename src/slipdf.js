@@ -810,7 +810,10 @@ var Slipdf = (function() {
 
       context.root = context; // ;-)
 
-      return apply(tree, context, {}); };
+      var d = apply(tree, context, {});
+//console.log('doc for PDFMake', d);
+
+      return d; };
   };
 
   // done.
