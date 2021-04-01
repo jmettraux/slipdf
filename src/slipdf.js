@@ -217,7 +217,7 @@ var Slipdf = (function() {
 
   var self = this;
 
-  var VERSION = '1.0.1';
+  var VERSION = '1.1.0';
 
   var readies = [];
   var dataUrls = {};
