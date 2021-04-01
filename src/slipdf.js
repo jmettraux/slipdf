@@ -703,6 +703,9 @@ var Slipdf = (function() {
 
   // public
 
+  this._dataUrls = dataUrls;
+    // helpful when debugging...
+
   this.ready = function(callback) {
 
     if (readies) readies.push(callback);
@@ -713,6 +716,7 @@ var Slipdf = (function() {
 
     dataUrls[key] = false;
 
+    if (uri.match(/^data:/)) { dataUrls[key] = uri; return; }
     if (debugOn) { dataUrls[key] = uri; return; }
 
     if (
