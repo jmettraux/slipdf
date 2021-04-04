@@ -221,6 +221,7 @@ var Slipdf = (function() {
 
   var readies = [];
   var dataUrls = {};
+  var svgs = {};
   var slips = {};
 
   // protected
@@ -541,8 +542,21 @@ var Slipdf = (function() {
 
     push(result, r); return r;
   };
+
+  var apply_svg = function(tree, context, result) {
+
+    var r = applyVanilla(tree, context, result);
+
+    var s = r.src; if (s) {
+      r.svg = context.svgs[s];
+      delete r.src;
+      if ( ! r.svg) throw new Error("No SVG added under \"" + s + "\"");
+    }
+
+    return r;
+  };
+
   var apply_qr = applyVanilla;
-  var apply_svg = applyVanilla;
 
   var apply_img = function(tree, context, result) {
 
@@ -706,6 +720,7 @@ var Slipdf = (function() {
   // public
 
   this._dataUrls = dataUrls;
+  this._svgs = svgs;
     // helpful when debugging...
 
   this.ready = function(callback) {
@@ -728,18 +743,24 @@ var Slipdf = (function() {
 
     fetch(uri)
       .then(function(res) {
-        return res.blob();
-      })
+        return res.blob(); })
       .then(function(blb) {
         var r = new FileReader();
         r.onloadend = function() {
           dataUrls[key] = r.result;
-          triggerReadies();
-        };
-        r.readAsDataURL(blb);
-      });
+          triggerReadies(); };
+        r.readAsDataURL(blb); });
   };
   this.addDataURL = self.addDataUrl;
+
+  this.addSvg = function(key, uri) {
+
+    fetch(uri)
+      .then(function(res) { return res.blob(); })
+      .then(function(blb) { return blb.text(); })
+      .then(function(txt) { svgs[key] = txt; });
+  };
+  this.addSVG = self.addSvg;
 
   this.addSlip = function(uri) {
 
@@ -810,6 +831,7 @@ var Slipdf = (function() {
       context.colors = cs;
 
       context.dataUrls = dataUrls;
+      context.svgs = svgs;
 
       context.ffalse = [ false, false, false, false ];
       context.fzero = [ 0, 0, 0, 0 ];
