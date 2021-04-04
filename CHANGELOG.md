@@ -4,6 +4,7 @@
 
 ## slipdf.js 1.1.0  not yet released
 
+* Introduce `svg`
 * Let Slipdf.addDataUrl() accept a data uri
 * Introduce `qr`
 

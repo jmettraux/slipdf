@@ -534,13 +534,15 @@ var Slipdf = (function() {
 
   // tag apply functions
 
-  var apply_qr = function(tree, context, result) {
+  var applyVanilla = function(tree, context, result) {
 
     var r = applyTex(tree, context, result);
     r[tree.t] = r.text; delete r.text;
 
     push(result, r); return r;
   };
+  var apply_qr = applyVanilla;
+  var apply_svg = applyVanilla;
 
   var apply_img = function(tree, context, result) {
 
