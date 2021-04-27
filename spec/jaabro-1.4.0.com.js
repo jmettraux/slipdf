@@ -297,7 +297,9 @@ var rw = function(t) {
 return eval('rewrite_' + (t.name ? t.name : ''))(t);};
 var p = Object.create(Jaabro);
 var funs = fun.toString();
-'all alt altg eseq jseq ren rep rex seq str'.split(' ').forEach(function(f) {
+'all alt altg eseq jseq ren rep rex seq str nott'
+.split(' ')
+.forEach(function(f) {
 funs = funs.replace(
 new RegExp(" +" + f + "\\(", 'g'),
 ' Jaabro.' + f + '(');});
@@ -347,4 +349,4 @@ if (opts.prune !== false && t.result !== 1) return null;
 if (t.parter === 'all') t = t.children[0];
 if (opts.rewrite !== false) return this.rewrite(t);
 return t;};
-/* compacted from commit 7371a86 on Sat Oct  3 17:33:43 JST 2020 */
+/* compacted from commit 2fdf568 on Tue Apr 27 08:58:17 JST 2021 */
