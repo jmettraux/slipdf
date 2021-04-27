@@ -36,6 +36,7 @@ describe 'Slipdf' do
 
           it "generates a pdfmake document for #{sli}" do
 
+            #puts '-' * 80
             #print_tree(js "var src = #{src}; return Slipdf.debug(src, 3);")
 
             #puts '-' * 80
@@ -46,6 +47,9 @@ describe 'Slipdf' do
               #
             #puts '-' * 80
             #puts YAML.dump(js "return Slipdf.compile(#{src})(#{ctx});")
+              #
+            #puts '-' * 80
+            #pp(js "return Slipdf.compile(#{src})(#{ctx});")
 
             expect(js("return Slipdf.compile(#{src})(#{ctx});")).to eq(res)
           end }

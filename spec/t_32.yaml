@@ -1,0 +1,12 @@
+---
+pageSize: A4
+content:
+  - text: This is template 32
+  - table:
+      body:
+        - - text: 'A'
+          - text: 'B'
+    margin: [ 4, -1 ]
+    layout: { x: 1 }
+  - text: This is the end
+

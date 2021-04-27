@@ -1,0 +1,22 @@
+
+document pageSize="A4"
+
+  header
+  footer
+
+  content
+    p This is template #{template}
+    table margin=[ 4, -1 ]
+      tbody
+        tr
+          td A
+          td B
+      javascript:
+        {
+          layout: {
+            hLineWidth: function() { return 2; },
+            x: 1
+          }
+        }
+    p This is the end
+

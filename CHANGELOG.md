@@ -4,6 +4,7 @@
 
 ## slipdf.js 1.1.0  not yet released
 
+* Introduce javascript: for table layout
 * Introduce Slipdf.addSvg(key, uri) and `svg src='key'`
 * Introduce `svg`
 * Let Slipdf.addDataUrl() accept a data uri

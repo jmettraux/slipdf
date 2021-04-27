@@ -1,6 +1,7 @@
 
 var SlipdfParser = Jaabro.makeParser(function() {
 
+  //
   // parse
 
   function eol(i) { return rex(null, i, /\n+/); }
@@ -79,7 +80,10 @@ var SlipdfParser = Jaabro.makeParser(function() {
   function klass(i) { return rex('class', i, /\.[a-z][-_a-zA-Z0-9]*/); }
   function tag(i) { return rex('tag', i, /[a-z][-_a-zA-Z0-9]*/); }
 
-  function head(i) { return seq('head', i, tag, klass, '*'); }
+  function colon(i) { return str(null, i, ':'); }
+  function notColon(i) { return nott(null, i, colon); }
+
+  function head(i) { return seq('head', i, tag, notColon, klass, '*'); }
 
   function codeLine(i) { return seq('cline', i, spacestar, doe, code, eol); }
 
@@ -96,14 +100,16 @@ var SlipdfParser = Jaabro.makeParser(function() {
 
   function blankLine(i) { return rex(null, i, /([ \t]*\n+|[ \t]+$)/); }
   function commentLine(i) { return rex(null, i, /[ \t]*\/[^\n]*\n+/); }
+  function jsLine(i) { return rex('jsline', i, /[ \t]+[^\n]*\n+/); }
 
   function line(i) {
     return alt(null, i,
-      commentLine, stringLine, codeLine, plainLine, blankLine); }
+      commentLine, stringLine, codeLine, plainLine, blankLine, jsLine); }
 
   function lines(i) { return seq('lines', i, line, '*'); }
   var root = lines;
 
+  //
   // rewrite
 
   function rewrite_lines(t) {
@@ -180,6 +186,13 @@ var SlipdfParser = Jaabro.makeParser(function() {
     return o;
   }
 
+  function rewrite_jsline(t) {
+
+    var s = t.string();
+
+    return { js: s, i: s.match(/^([ \t]*)/)[1].length }
+  }
+
   function rewrite_sline(t) {
 
     var o = {};
@@ -229,6 +242,11 @@ var Slipdf = (function() {
   var debugOn = function() { return (typeof DEBUG) !== 'undefined' };
 
   // helpers
+
+  var isHash = function(o) {
+
+    return ! (o === null || (typeof o !== 'object') || Array.isArray(o));
+  };
 
   var toString = function(o) {
 
@@ -543,6 +561,32 @@ var Slipdf = (function() {
     push(result, r); return r;
   };
 
+  var feval = function(s) {
+
+    return Function('"use strict"; return (' + s + ')')();
+  };
+
+  var applyJavascript = function(tree, context, result) {
+
+    var gatherJs = function(tree) {
+      var a = [];
+      var g = function(c) {
+        var s = c.js || c.s; if (s) a.push(s);
+        if (c.cn) c.cn.forEach(g);
+      };
+      tree.cn.forEach(g);
+      return a.join('');
+    };
+
+    var r = feval(gatherJs(tree));
+      //
+    if ((typeof r !== 'object') || r === null || Array.isArray(r)) {
+      r = { javascript: r };
+    }
+
+    return push(result, r);
+  };
+
   var apply_svg = function(tree, context, result) {
 
     var r = applyVanilla(tree, context, result);
@@ -595,7 +639,10 @@ var Slipdf = (function() {
 
     table.body = applyChildren(tree, context, []);
 
-    push(result, r); return r;
+    var l = table.body.slice(-1)[0];
+    if (isHash(l) && l.layout) { Object.assign(r, l); table.body.pop(); }
+
+    return push(result, r);
   };
 
   var apply_attribute = function(tree, context, result) {
@@ -619,7 +666,8 @@ var Slipdf = (function() {
 
   var apply_br = function(tree, context, result) {
 
-    push(result, '\n'); return result;
+    //push(result, '\n'); return result;
+    return push(result, '\n');
   };
 
   var apply_li = applyText;
@@ -697,6 +745,7 @@ var Slipdf = (function() {
     else if ((typeof tree.s) === 'string') fun = 'applyS';
     else if (tree.x === '=') fun = 'applyReturningCode';
     else if (tree.x === '-') fun = 'applyCode';
+    else if (tree.js) fun = 'applyJavascript';
     else
       throw new Error('apply() cannot make sense of ' + JSON.stringify(tree));
 
