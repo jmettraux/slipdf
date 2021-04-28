@@ -1,0 +1,12 @@
+---
+pageSize: A4
+content:
+- text: This is template 33
+- columnGap: 10
+  columns:
+  - text: blah
+    width: "*"
+  - text: blue
+    width: auto
+- text: This is the end
+

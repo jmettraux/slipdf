@@ -4,6 +4,7 @@
 
 ## slipdf.js 1.1.0  not yet released
 
+* Introduce columns:
 * Introduce javascript: for table layout
 * Introduce Slipdf.addSvg(key, uri) and `svg src='key'`
 * Introduce `svg`

@@ -645,6 +645,15 @@ var Slipdf = (function() {
     return push(result, r);
   };
 
+  var apply_columns = function(tree, context, result) {
+
+    var r = applyStack(tree, context, result);
+    r.columns = r.stack;
+    delete r.stack;
+
+    return r;
+  };
+
   var apply_attribute = function(tree, context, result) {
 
     var v = applyAndReduceChildren(tree, context, result);
